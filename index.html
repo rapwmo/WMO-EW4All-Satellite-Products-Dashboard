@@ -1,8 +1,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
-  .sidebar-region {
-	display: none!important;
-  }
   .tab-content {
 	width: 100% !important;
     max-width: 100% !important;
@@ -10,16 +7,22 @@
     margin-left: 0 !important;
     padding-left: 0 !important;
   }
+  
   .page-title {
 	display: none!important;
   }
   h1, h2 {
     color: #00529C;
     margin-bottom: 20px;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  h1 {
+  	font-size: 2.25rem;
   }
   h2 {
-	font-size: 1.8rem;
-    font-weight: 600;
+	font-size: 1.875rem;
     margin-top: 50px;
     margin-bottom: 20px;
     position: relative;
@@ -38,10 +41,18 @@
   }
   h3 {
     color: #333;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 600;
     margin-top: 30px;
     margin-bottom: 15px;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    line-height: 1.3;
+  }
+  body, p, div {
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #2c3e50;
   }
   .breadcrumb {
 	display: none!important;
@@ -55,6 +66,8 @@
     list-style: none;
     border-bottom: 1px solid #e9ecef;
     flex-wrap: wrap;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.875rem;
   }
   .breadcrumb-new a {
 	color: #00529C;
@@ -105,6 +118,7 @@
     font-weight: 600;
     color: #00529C;
     margin: 0;
+    font-family: 'Open Sans', sans-serif;
   }  
   .intro-toggle {
     background: none;
@@ -114,6 +128,8 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 1.2rem;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 500;
     transition: all 0.3s ease;
   }  
   .intro-toggle:hover {
@@ -123,6 +139,7 @@
   .intro-content {
     line-height: 1.6;
     color: #2c3e50;
+    font-size: 1rem;
   }  
   .intro-content p {
     margin-bottom: 12px;
@@ -145,6 +162,7 @@
     color: #00529C;
     margin-bottom: 20px;
     text-align: center;
+    font-family: 'Open Sans', sans-serif;
   }  
   .hazard-buttons {
     display: flex;
@@ -167,6 +185,7 @@
     text-align: center;
     font-weight: 500;
     color: #495057;
+    font-family: 'Open Sans', sans-serif;
   }  
   .hazard-btn:hover {
     transform: translateY(-3px);
@@ -198,6 +217,7 @@
     font-weight: 500;
     transition: all 0.3s ease;
     margin-left: 15px;
+    font-family: 'Open Sans', sans-serif;
   }
     .clear-hazard-btn:hover {
     transform: translateY(-2px);
@@ -615,25 +635,25 @@
             <a href="https://community.wmo.int/en">Home</a>
         </li>
         <li>
-            <span class="separator">&gt;</span>
+            <span class="separator">/</span>
+        </li>
+        <li>
+            <a href="https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives">Programmes and Initiatives</a>
+        </li>
+        <li>
+            <span class="separator">/</span>
         </li>
         <li>
             <a href="https://community.wmo.int/en/activity-areas/wmo-space-programme-wsp">WMO Space Programme</a>
         </li>
         <li>
-            &nbsp;
-        </li>
-        <li>
-            <span class="separator">&gt;</span>
+            <span class="separator">/</span>
         </li>
         <li>
             <a href="https://community.wmo.int/en/activity-areas/wmo-space-programme-wsp/wmo-regional-coordination-groups-satellite-data-requirements">Regional Activities</a>
         </li>
         <li>
-            &nbsp;
-        </li>
-        <li>
-            <span class="separator">&gt;</span>
+            <span class="separator">/</span>
         </li>
         <li>
             EW4All Satellite Products
