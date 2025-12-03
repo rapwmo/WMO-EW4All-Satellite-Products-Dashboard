@@ -896,6 +896,7 @@ h4 {
   }
 }
 </style>
+
 <!-- Breadcrumb Navigation -->
 <div class="container">
   <ol class="breadcrumb-new">
@@ -1006,8 +1007,16 @@ h4 {
           </select>
           <span id="currentSourceIndicator" class="source-indicator combined">ALL SOURCES</span>
         </div>
+        <div class="filter-group">
+          <label for="providerFilter">Provider:</label>
+          <select id="providerFilter">
+            <option value="">All Providers</option>
+          </select>
+        </div>
         <button id="refreshBtn" class="refresh-btn">🔄 Refresh Data</button>
       </div>
+      
+      <!-- Hazard Filters -->
       <div class="sidebar-section">
         <div class="sidebar-section-title">Priority Hazards</div>
         <div class="hazard-filters">
@@ -1049,14 +1058,7 @@ h4 {
       
       <!-- Additional Filters -->
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Additional Filters</div>
-        
-        <div class="filter-group">
-          <label for="providerFilter">Provider:</label>
-          <select id="providerFilter">
-            <option value="">All Providers</option>
-          </select>
-        </div>
+        <div class="sidebar-section-title">Additional Filters</div>   
         
         <div class="filter-group">
           <label for="statusFilter">Operational Status:</label>
@@ -1068,14 +1070,22 @@ h4 {
         </div>
         
         <div class="filter-group">
-          <label for="searchBox">Search Keywords:</label>
-          <input 
-            type="text" 
-            id="searchBox" 
-            placeholder="Search products, sensors, use cases..."
-            aria-label="Search satellite products"
-          >
+          <label for="accessFilter">Product Access:</label>
+          <select id="accessFilter">
+            <option value="">All Products</option>
+            <option value="with-links">With Access Links</option>
+            <option value="with-training">With Training Materials</option>
+          </select>
         </div>
+        
+        <div class="filter-group">
+          <label for="sortFilter">Sort By:</label>
+          <select id="sortFilter">
+            <option value="alpha-asc">A → Z (Alphabetical)</option>
+            <option value="alpha-desc">Z → A (Reverse)</option>
+          </select>
+        </div>
+        
       </div>
       
     </div>
@@ -1083,6 +1093,17 @@ h4 {
   
   <!-- Main Content Area -->
   <main class="dashboard-main">
+    
+    <!-- Search Box -->
+    <div class="filter-group">
+      <label for="searchBox">Search Keywords:</label>
+      <input 
+        type="text" 
+        id="searchBox" 
+        placeholder="Search products, sensors, use cases..."
+        aria-label="Search satellite products"
+      >
+    </div>
     
     <!-- Quick Actions Bar -->
     <div class="quick-actions">
@@ -1465,9 +1486,11 @@ function clearHazardFilter() {
 function applyFilters() {
   const providerFilter = document.getElementById('providerFilter').value;
   const statusFilter = document.getElementById('statusFilter').value;
+  const accessFilter = document.getElementById('accessFilter').value;
+  const sortFilter = document.getElementById('sortFilter').value;
   const searchTerm = document.getElementById('searchBox').value.toLowerCase();
 
-  console.log('Applying filters:', { providerFilter, statusFilter, searchTerm, currentHazardFilter });
+  console.log('Applying filters:', { providerFilter, statusFilter, accessFilter, sortFilter, searchTerm, currentHazardFilter });
 
   filteredProducts = allProducts.filter(product => {
     const columnMap = product._columnMap;
@@ -1499,6 +1522,19 @@ function applyFilters() {
       }
     }
 
+    // Access filter (products with links or training materials)
+    if (accessFilter) {
+      const urls = product[columnMap.urls] || '';
+      const training = product[columnMap.trainingMaterials] || '';
+      
+      if (accessFilter === 'with-links' && !urls.trim()) {
+        return false;
+      }
+      if (accessFilter === 'with-training' && !training.trim()) {
+        return false;
+      }
+    }
+
     // Search filter
     if (searchTerm) {
       const searchableText = [
@@ -1517,6 +1553,21 @@ function applyFilters() {
 
     return true;
   });
+
+  // Apply sorting
+  if (sortFilter === 'alpha-asc') {
+    filteredProducts.sort((a, b) => {
+      const nameA = (a[a._columnMap.productName] || '').toLowerCase();
+      const nameB = (b[b._columnMap.productName] || '').toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+  } else if (sortFilter === 'alpha-desc') {
+    filteredProducts.sort((a, b) => {
+      const nameA = (a[a._columnMap.productName] || '').toLowerCase();
+      const nameB = (b[b._columnMap.productName] || '').toLowerCase();
+      return nameB.localeCompare(nameA);
+    });
+  }
 
   console.log(`Filtered ${filteredProducts.length} products from ${allProducts.length} total`);
   displayProducts();
@@ -1744,6 +1795,8 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('refreshBtn').addEventListener('click', loadSatelliteProducts);
   document.getElementById('providerFilter').addEventListener('change', applyFilters);
   document.getElementById('statusFilter').addEventListener('change', applyFilters);
+  document.getElementById('accessFilter').addEventListener('change', applyFilters);
+  document.getElementById('sortFilter').addEventListener('change', applyFilters);
   document.getElementById('searchBox').addEventListener('input', applyFilters);
 
   // Close sidebar when clicking outside on mobile
