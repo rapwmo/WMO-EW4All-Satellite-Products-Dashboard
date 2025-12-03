@@ -1,1364 +1,1764 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
-  .tab-content {
-	width: 100% !important;
-    max-width: 100% !important;
-    flex: 0 0 100% !important;
-    margin-left: 0 !important;
-    padding-left: 0 !important;
+/* ===================================
+   WMO-Style Enhanced Dashboard CSS
+   =================================== */
+
+/* CSS Variables for consistent theming */
+:root {
+  --wmo-blue-primary: #00529C;
+  --wmo-blue-secondary: #0066CC;
+  --wmo-blue-light: #E6F2FF;
+  --wmo-gray-dark: #2c3e50;
+  --wmo-gray-medium: #495057;
+  --wmo-gray-light: #e9ecef;
+  --wmo-gray-lighter: #f8f9fa;
+  --sidebar-width: 320px;
+  --header-height: 60px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --transition-speed: 0.3s;
+}
+
+/* ===================================
+   Base Styles & Typography
+   =================================== */
+
+body, p, div, li {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--wmo-gray-dark);
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--wmo-blue-primary);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--wmo-blue-primary);
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--wmo-gray-dark);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.3;
+}
+
+h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--wmo-gray-medium);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Hide default page elements */
+.tab-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.page-title {
+  display: none !important;
+}
+
+.breadcrumb {
+  display: none !important;
+}
+
+/* ===================================
+   Breadcrumb Navigation
+   =================================== */
+
+.breadcrumb-new {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: var(--spacing-md) 0;
+  list-style: none;
+  border-bottom: 1px solid var(--wmo-gray-light);
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.breadcrumb-new a {
+  color: var(--wmo-blue-primary);
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 4px;
+  transition: all var(--transition-speed) ease;
+}
+
+.breadcrumb-new a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--wmo-blue-primary);
+  transition: width var(--transition-speed) ease;
+}
+
+.breadcrumb-new a:hover::after {
+  width: 100%;
+}
+
+.breadcrumb-new .separator {
+  color: #adb5bd;
+  font-weight: 300;
+}
+
+.breadcrumb-new .current {
+  color: var(--wmo-gray-medium);
+  font-weight: 600;
+}
+
+/* ===================================
+   Main Layout Structure
+   =================================== */
+
+.dashboard-header-top {
+  background: white;
+  padding: var(--spacing-xl) var(--spacing-xl);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-header-top h1 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.dashboard-header-top p {
+  color: var(--wmo-gray-medium);
+  font-size: 15px;
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.stats-panel-top {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 2px solid var(--wmo-gray-light);
+}
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Left Sidebar */
+.dashboard-sidebar {
+  width: var(--sidebar-width);
+  background: white;
+  border-right: 2px solid var(--wmo-gray-light);
+  position: relative;
+  height: auto;
+  min-height: 100vh;
+  z-index: 100;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-header {
+  padding: var(--spacing-lg);
+  border-bottom: 2px solid var(--wmo-gray-light);
+  background: linear-gradient(135deg, var(--wmo-blue-light), white);
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--wmo-blue-primary);
+  margin: 0;
+}
+
+.sidebar-subtitle {
+  font-size: 13px;
+  color: var(--wmo-gray-medium);
+  margin-top: 4px;
+}
+
+.sidebar-content {
+  padding: var(--spacing-lg);
+}
+
+.sidebar-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.sidebar-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wmo-gray-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+}
+
+/* Collapsible Section */
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--wmo-gray-light);
+  margin-bottom: 0;
+  transition: all var(--transition-speed) ease;
+}
+
+.collapsible-header:hover {
+  opacity: 0.7;
+}
+
+.collapse-icon {
+  font-size: 12px;
+  color: var(--wmo-blue-primary);
+  transition: transform var(--transition-speed) ease;
+}
+
+.collapse-icon.collapsed {
+  transform: rotate(-90deg);
+}
+
+.collapsible-content {
+  max-height: 500px;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+  opacity: 1;
+}
+
+.collapsible-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Main Content Area */
+.dashboard-main {
+  flex: 1;
+  padding: 0 var(--spacing-xl) var(--spacing-xl);
+}
+
+/* ===================================
+   Filter Controls in Sidebar
+   =================================== */
+
+.filter-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.filter-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--wmo-gray-dark);
+  font-size: 14px;
+  margin-bottom: var(--spacing-xs);
+}
+
+.filter-group select,
+.filter-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--wmo-gray-light);
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  transition: all var(--transition-speed) ease;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: var(--wmo-blue-primary);
+  box-shadow: 0 0 0 3px rgba(0, 82, 156, 0.1);
+}
+
+/* Source Indicator */
+.source-indicator {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: var(--spacing-xs);
+}
+
+.source-indicator.kma { background: #CE1818; color: white; }
+.source-indicator.cma { background: #187DCE; color: white; }
+.source-indicator.jma { background: #3453AB; color: white; }
+.source-indicator.jaxa { background: #78BBE6; color: white; }
+.source-indicator.nasa { background: #2B3CC1; color: white; }
+.source-indicator.noaa { background: #0693E3; color: white; }
+.source-indicator.rosc { background: #E31E52; color: white; }
+.source-indicator.eum { background: #2A2863; color: white; }
+.source-indicator.imd { background: #1B640F; color: white; }
+.source-indicator.isro { background: #F4840C; color: white; }
+.source-indicator.swcem { background: #2A2863; color: white; }
+.source-indicator.combined { background: var(--wmo-blue-primary); color: white; }
+
+/* Refresh Button */
+.refresh-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--wmo-blue-primary), var(--wmo-blue-secondary));
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all var(--transition-speed) ease;
+  margin-top: var(--spacing-sm);
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 82, 156, 0.3);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===================================
+   Hazard Filter Buttons
+   =================================== */
+
+.hazard-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.hazard-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--spacing-md);
+  background: var(--wmo-gray-lighter);
+  border: 2px solid var(--wmo-gray-light);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  text-align: center;
+}
+
+.hazard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--wmo-blue-primary);
+}
+
+.hazard-btn.active {
+  background: linear-gradient(135deg, var(--wmo-blue-primary), var(--wmo-blue-secondary));
+  border-color: var(--wmo-blue-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 82, 156, 0.3);
+}
+
+.hazard-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.hazard-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.clear-hazard-btn {
+  grid-column: 1 / -1;
+  background: var(--wmo-gray-medium);
+  border: 2px solid var(--wmo-gray-medium);
+  color: white;
+  padding: 10px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all var(--transition-speed) ease;
+  margin-top: var(--spacing-xs);
+}
+
+.clear-hazard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* ===================================
+   Statistics Panel
+   =================================== */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+}
+
+.stat-item {
+  text-align: center;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--wmo-blue-light), white);
+  border-radius: var(--border-radius-sm);
+  border: 2px solid var(--wmo-gray-light);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--wmo-blue-primary);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--wmo-gray-medium);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ===================================
+   Quick Actions Bar
+   =================================== */
+
+.quick-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: white;
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.bulk-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, var(--wmo-blue-primary), var(--wmo-blue-secondary));
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all var(--transition-speed) ease;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 82, 156, 0.3);
+}
+
+.action-btn.secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.results-info {
+  color: var(--wmo-gray-medium);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ===================================
+   Product Cards Grid
+   =================================== */
+
+.products-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+}
+
+.product-card {
+  background: white;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all var(--transition-speed) ease;
+  border: 2px solid transparent;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.product-card.expanded {
+  border-color: var(--wmo-blue-primary);
+  box-shadow: 0 8px 24px rgba(0, 82, 156, 0.15);
+}
+
+/* Product Card Header */
+.product-card-header {
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  background: linear-gradient(135deg, rgba(0, 82, 156, 0.02), rgba(255, 255, 255, 1));
+  transition: all var(--transition-speed) ease;
+}
+
+.product-card-header:hover {
+  background: linear-gradient(135deg, rgba(0, 82, 156, 0.08), rgba(255, 255, 255, 1));
+}
+
+.product-card.expanded .product-card-header {
+  background: linear-gradient(135deg, var(--wmo-blue-light), white);
+  border-bottom: 2px solid var(--wmo-gray-light);
+}
+
+.expand-icon {
+  font-size: 1.25rem;
+  color: var(--wmo-blue-primary);
+  transition: transform var(--transition-speed) ease;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.product-card.expanded .expand-icon {
+  transform: rotate(90deg);
+}
+
+.product-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--wmo-gray-dark);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.4;
+}
+
+.product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+/* Hazard Tags */
+.hazard-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hazard-tag {
+  background: linear-gradient(135deg, var(--wmo-blue-primary), var(--wmo-blue-secondary));
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* Operational Status */
+.operational-status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.operational-status.operational {
+  background: #d4edda;
+  color: #155724;
+}
+
+.operational-status.development {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* Product Card Body */
+.product-card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+}
+
+.product-card.expanded .product-card-body {
+  max-height: 3000px;
+}
+
+.product-card-body-inner {
+  padding: var(--spacing-lg);
+}
+
+/* Provider Info */
+.provider-info {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--wmo-gray-light);
+  font-size: 15px;
+  color: var(--wmo-gray-medium);
+}
+
+.provider-info strong {
+  color: var(--wmo-blue-primary);
+}
+
+/* Product Details Grid */
+.product-details {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: var(--spacing-md);
+  align-items: start;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--wmo-gray-lighter);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--wmo-gray-dark);
+  font-size: 14px;
+}
+
+.detail-value {
+  color: var(--wmo-gray-medium);
+  font-size: 15px;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+/* ===================================
+   Training Materials Section
+   =================================== */
+
+.training-materials {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, #d4edda, #f8f9fa);
+  border-radius: var(--border-radius-sm);
+  border: 2px solid #c3e6cb;
+}
+
+.training-materials-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #155724;
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.training-materials-title::before {
+  content: "📚";
+  font-size: 1.25rem;
+}
+
+.training-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.training-link {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition-speed) ease;
+}
+
+.training-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  text-decoration: none;
+  color: white;
+}
+
+.training-link::before {
+  content: "🎓";
+  margin-right: 6px;
+}
+
+/* ===================================
+   Product Links
+   =================================== */
+
+.product-links {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 2px solid var(--wmo-gray-light);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.product-link {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--wmo-blue-primary), var(--wmo-blue-secondary));
+  color: white;
+  padding: 10px 18px;
+  text-decoration: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition-speed) ease;
+}
+
+.product-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 82, 156, 0.3);
+  text-decoration: none;
+  color: white;
+}
+
+/* ===================================
+   Loading & Error States
+   =================================== */
+
+.loading, .no-results {
+  text-align: center;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background: white;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.loading {
+  color: var(--wmo-gray-medium);
+  font-size: 15px;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  margin: var(--spacing-md) 0;
+  border: 2px solid #f5c6cb;
+  font-size: 14px;
+}
+
+/* ===================================
+   Mobile Responsive Design
+   =================================== */
+
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 280px;
   }
   
-  .page-title {
-	display: none!important;
+  .products-grid {
+    grid-template-columns: 1fr;
   }
-  h1, h2 {
-    color: #00529C;
-    margin-bottom: 20px;
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    font-weight: 600;
-    line-height: 1.3;
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  h1 {
-  	font-size: 2.25rem;
-  }
-  h2 {
-	font-size: 1.875rem;
-    margin-top: 50px;
-    margin-bottom: 20px;
-    position: relative;
-    padding-left: 20px;
-  }
-  h2::before {
-    content: '';
-    position: absolute;
+}
+
+@media (max-width: 768px) {
+  .dashboard-sidebar {
+    position: fixed;
     left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 30px;
-    background: linear-gradient(45deg, #00529C, #0066CC);
-    border-radius: 2px;
-  }
-  h3 {
-    color: #333;
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-top: 30px;
-    margin-bottom: 15px;
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    line-height: 1.3;
-  }
-  body, p, div {
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-  .breadcrumb {
-	display: none!important;
-  }
-  .breadcrumb-new {
-	display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0;
-    padding: 20px 0;
-    list-style: none;
-    border-bottom: 1px solid #e9ecef;
-    flex-wrap: wrap;
-    font-family: 'Open Sans', sans-serif;
-    font-size: 0.875rem;
-  }
-  .breadcrumb-new a {
-	color: #00529C;
-    text-decoration: none;
-    font-weight: 500;
-    position: relative;
-    padding-bottom: 4px;
-    transition: all 0.3s ease;
-  }
-  .breadcrumb-new a::after {
-	content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #00529C;
-    transition: width 0.3s ease;
-  }
-  .breadcrumb-new a:hover::after {
-	width: 100%;
-  }
-  .breadcrumb-new .separator {
-	color: #adb5bd;
-    font-weight: 300;
-  }
-  .breadcrumb-new .current {
-	color: #495057;
-    font-weight: 600;
-  }
-  /* Intro Section */
-  .intro-section {
-    background: linear-gradient(135deg, rgba(0, 82, 156, 0.1), rgba(0, 102, 204, 0.05));
-    border: 2px solid rgba(0, 82, 156, 0.2);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 25px;
-    position: relative;
-  }  
-  .intro-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }  
-  .intro-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #00529C;
-    margin: 0;
-    font-family: 'Open Sans', sans-serif;
-  }  
-  .intro-toggle {
-    background: none;
-    border: 1px solid #00529C;
-    color: #00529C;
-    padding: 5px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 500;
-    transition: all 0.3s ease;
-  }  
-  .intro-toggle:hover {
-    background: #00529C;
-    color: white;
-  }  
-  .intro-content {
-    line-height: 1.6;
-    color: #2c3e50;
-    font-size: 1rem;
-  }  
-  .intro-content p {
-    margin-bottom: 12px;
-  }  
-  .intro-content strong {
-    color: #00529C;
-  }
-  /* Hazard Buttons Section */
-  .hazard-buttons-section {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 25px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-  }  
-  .hazard-buttons-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #00529C;
-    margin-bottom: 20px;
-    text-align: center;
-    font-family: 'Open Sans', sans-serif;
-  }  
-  .hazard-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-  }  
-  .hazard-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 20px 25px;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border: 2px solid #dee2e6;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 120px;
-    text-align: center;
-    font-weight: 500;
-    color: #495057;
-    font-family: 'Open Sans', sans-serif;
-  }  
-  .hazard-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border-color: #00529C;
-  }  
-  .hazard-btn.active {
-    background: linear-gradient(135deg, #00529C, #0058c1);
-    border-color: #00529C;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 82, 156, 0.3);
-  }  
-  .hazard-icon {
-    font-size: 2rem;
-    line-height: 1;
-  }  
-  .hazard-label {
-    font-size: 1.5rem;
-    line-height: 1.2;
-  }  
-  .clear-hazard-btn {
-    background: linear-gradient(135deg, #6c757d, #5a6268);
-    border: 2px solid #6c757d;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    margin-left: 15px;
-    font-family: 'Open Sans', sans-serif;
-  }
-    .clear-hazard-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-  }
-  .controls {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-  }
-  .filter-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .filter-group label {
-    font-weight: 600;
-    color: #00529C;
-    font-size: 1.2rem;
-  }
-  select, input {
-    padding: 10px;
-    border: 2px solid #e1e8ed;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
-  }
-  select:focus, input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-  .search-box {
-    min-width: 250px;
-  }
-  .data-source-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-  }
-  .source-indicator {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-
-  .source-indicator.kma {
-    background: #CE1818;
-    color: white;
-  }
-
-  .source-indicator.cma {
-    background: #187DCE;
-    color: white;
-  }
-
-  .source-indicator.jma {
-    background: #3453AB;
-    color: white;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform var(--transition-speed) ease;
   }
   
-  .source-indicator.jaxa {
-    background: #78BBE6;
-    color: white;
+  .dashboard-sidebar.mobile-open {
+    transform: translateX(0);
   }
   
-  .source-indicator.nasa {
-    background: #2B3CC1;
-    color: white;
+  .dashboard-main {
+    padding: var(--spacing-md);
   }
   
-  .source-indicator.noaa {
-    background: #0693E3;
-    color: white;
-  }
-  
-  .source-indicator.rosc {
-    background: #E31E52;
-    color: white;
-  }
-  
-  .source-indicator.eum {
-    background: #2A2863;
-    color: white;
-  }
-  
-  .source-indicator.imd {
-    background: #1B640F;
-    color: white;
-  }
-  
-  .source-indicator.isro {
-    background: #F4840C;
-    color: white;
-  }
-  
-  .source-indicator.swcem {
-    background: #2A2863;
-    color: white;
-  }
-
-  .source-indicator.combined {
-    background: #00529C;
-    color: white;
-  }
-
-  .refresh-btn {
-    background: linear-gradient(135deg, #00529C, #0058c1);
+  .mobile-menu-toggle {
+    display: block;
+    position: fixed;
+    top: var(--spacing-md);
+    left: var(--spacing-md);
+    z-index: 1001;
+    background: var(--wmo-blue-primary);
     color: white;
     border: none;
-    padding: 10px 10px;
-    border-radius: 8px;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
     cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.2s ease;
   }
-  .refresh-btn:hover {
-    transform: translateY(-2px);
+  
+  .hazard-filters {
+    grid-template-columns: 1fr;
   }
-  .refresh-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
   }
-  .stats {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .stat-item {
-    background: linear-gradient(135deg, #00529C, #0058c1);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 10px;
-    text-align: center;
-    min-width: 120px;
-  }
-  .stat-number {
-    font-size: 1.8rem;
-    font-weight: bold;
-  }
-  .stat-label {
-    font-size: 1.2rem;
-    opacity: 0.9;
-  }
-  .products-grid {
-    display: grid;
-    gap: 15px;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  }
-  .product-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
-    padding: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(10px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .product-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  }
-
-  .product-header {
-    border-bottom: 1px solid #f8f9fa;
-    padding-bottom: 12px;
-    margin-bottom: 15px;
-  }
-  .product-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .hazard-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .hazard-tag {
-    background: linear-gradient(135deg, #00529C, #0058c1);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 1.2rem;
-    font-weight: 500;
-  }
-  .provider-info {
-    color: #7f8c8d;
-    font-size: 0.9rem;
-  }
-  .product-details {
-    display: grid;
-    gap: 10px;
-  }
+  
   .detail-row {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 10px;
-    align-items: start;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
   }
-  .detail-label {
-    font-weight: 600;
-    color: #34495e;
-    font-size: 1.2rem;
+  
+  .quick-actions {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: stretch;
   }
+  
+  .bulk-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+  
+  .dashboard-header-top {
+    padding: var(--spacing-md);
+  }
+}
 
-  .detail-value {
-    color: #2c3e50;
-    font-size: 1.2rem;
-    word-break: break-word;
+/* Desktop - hide mobile menu toggle */
+@media (min-width: 769px) {
+  .mobile-menu-toggle {
+    display: none;
   }
-  
-  /* Training Materials Section */
-  .training-materials {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 2px solid #f8f9fa;
-  }
-  
-  .training-materials-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #00529C;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .training-materials-title::before {
-    content: "📚";
-    font-size: 1.2rem;
-  }
-  
-  .training-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .training-link {
-    display: inline-block;
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    position: relative;
-  }
-  
-  .training-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-    text-decoration: none;
-    color: white;
-  }
-  
-  .training-link::before {
-    content: "🎓";
-    margin-right: 6px;
-  }
-  
-  .product-links {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #e1e8ed;
-  }
-  .product-link {
-    display: inline-block;
-    background: linear-gradient(135deg, #00529C, #0058c1);
-    color: white;
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    font-weight: 500;
-    margin-right: 10px;
-    margin-bottom: 5px;
-    transition: transform 0.2s ease;
-  }
-  .product-link:hover {
-    transform: translateY(-2px);
-    text-decoration: none;
-    color: white;
-  }
-  .no-results {
-    text-align: center;
-    padding: 60px 20px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  }
-  .loading {
-    text-align: center;
-    padding: 60px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    color: #7f8c8d;
-    font-size: 1.2rem;
-  }
-  .operational-status {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 1.3rem;
-    font-weight: 500;
-    margin-left: 10px;
-  }
-  .operational-status.operational {
-    background: #d4edda;
-    color: #155724;
-  }
-  .operational-status.development {
-    background: #fff3cd;
-    color: #856404;
-  }
-  .error-message {
-    background: #f8d7da;
-    color: #721c24;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 10px 0;
-    border: 1px solid #f5c6cb;
-  }
-  
-  /* Debug styles */
-  .debug-info {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    color: #6c757d;
-  }
-  
-  @media (max-width: 768px) {
-    .filter-section {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .data-source-controls {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .products-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .detail-row {
-      grid-template-columns: 1fr;
-      gap: 5px;
-    }
-
-    .stats {
-      justify-content: center;
-    }
-
-    .product-title {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    
-    .hazard-buttons {
-      justify-content: center;
-    }
-    
-    .hazard-btn {
-      min-width: 100px;
-      padding: 15px 20px;
-    }
-    
-    .intro-header {
-      flex-direction: column;
-      gap: 10px;
-    }
-    
-    .training-links {
-      justify-content: center;
-    }
-  }
+}
 </style>
-<!-- Breadcrumb -->
+<!-- Breadcrumb Navigation -->
 <div class="container">
-    <ol class="breadcrumb-new">
-        <li>
-            <a href="https://community.wmo.int/en">Home</a>
-        </li>
-        <li>
-            <span class="separator">/</span>
-        </li>
-        <li>
-            <a href="https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives">Programmes and Initiatives</a>
-        </li>
-        <li>
-            <span class="separator">/</span>
-        </li>
-        <li>
-            <a href="https://community.wmo.int/en/activity-areas/wmo-space-programme-wsp">WMO Space Programme</a>
-        </li>
-        <li>
-            <span class="separator">/</span>
-        </li>
-        <li>
-            <a href="https://community.wmo.int/en/activity-areas/wmo-space-programme-wsp/wmo-regional-coordination-groups-satellite-data-requirements">Regional Activities</a>
-        </li>
-        <li>
-            <span class="separator">/</span>
-        </li>
-        <li>
-            EW4All Satellite Products
-        </li>
-    </ol>
+  <ol class="breadcrumb-new">
+    <li><a href="https://community.wmo.int/en">Home</a></li>
+    <li><span class="separator">/</span></li>
+    <li><a href="https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives">Programmes and Initiatives</a></li>
+    <li><span class="separator">/</span></li>
+    <li><a href="https://community.wmo.int/en/activity-areas/wmo-space-programme-wsp">WMO Space Programme</a></li>
+    <li><span class="separator">/</span></li>
+    <li><a href="https://community.wmo.int/en/activity-areas/wmo-space-programme-wsp/wmo-regional-coordination-groups-satellite-data-requirements">Regional Activities</a></li>
+    <li><span class="separator">/</span></li>
+    <li>EW4All Satellite Products</li>
+  </ol>
 </div>
+
+<!-- Dashboard Header (Above Everything) -->
 <div class="container">
-  <div class="header">
+  <header class="dashboard-header-top">
     <h1>EW4All Satellite Products</h1>
     <p>Comprehensive satellite data products for early warning systems across priority hazards</p>
-  </div>
-
-  <!-- Intro Section -->
-  <div class="intro-section">
-    <div class="intro-header">
-      <h3 class="intro-title">How to Use This Dashboard</h3>
-      <button class="intro-toggle" onclick="toggleIntro()">Hide Guide</button>
-    </div>
-    <div class="intro-content" id="introContent">
-      <p><strong>Welcome to the EW4All Satellite Products Dashboard!</strong> This tool helps you discover satellite data products for early warning systems.</p>
-      <p><strong>Quick Start:</strong> Click on a hazard button below to see relevant products, or use the filters to refine your search by provider, status, or keywords.</p>
-      <p><strong>Data Sources:</strong> You can view products from individual agencies (KMA, CMA, JMA, NOAA, etc) or see all combined data. Switch between sources using the dropdown in the controls section.</p>
-      <p><strong>Product Cards:</strong> Each product shows key details like satellite sensors, coverage, resolution, and direct access links. Look for training materials marked with 🎓 icons.</p>
-    </div>
-  </div>
-
-  <!-- Hazard Buttons Section -->
-  <div class="hazard-buttons-section">
-    <h3 class="hazard-buttons-title">Filter by Priority Hazards</h3>
-    <div class="hazard-buttons">
-      <button class="hazard-btn" data-hazard="flood" onclick="selectHazard(this, 'flood')">
-        <div class="hazard-icon">🌊</div>
-        <div class="hazard-label">Floods</div>
-      </button>
-      
-      <button class="hazard-btn" data-hazard="heat" onclick="selectHazard(this, 'heat')">
-        <div class="hazard-icon">🔥</div>
-        <div class="hazard-label">Heatwaves</div>
-      </button>
-      
-      <button class="hazard-btn" data-hazard="tropical cyclone" onclick="selectHazard(this, 'tropical cyclone')">
-        <div class="hazard-icon">🌀</div>
-        <div class="hazard-label">Tropical Cyclones</div>
-      </button>
-      
-      <button class="hazard-btn" data-hazard="drought" onclick="selectHazard(this, 'drought')">
-        <div class="hazard-icon">🏜️</div>
-        <div class="hazard-label">Droughts</div>
-      </button>
-      
-      <button class="hazard-btn" data-hazard="fire" onclick="selectHazard(this, 'fire')">
-        <div class="hazard-icon">🔥</div>
-        <div class="hazard-label">Wildfires</div>
-      </button>
-      
-      <button class="hazard-btn" data-hazard="volcanic ash" onclick="selectHazard(this, 'volcanic ash')">
-        <div class="hazard-icon">🌋</div>
-        <div class="hazard-label">Volcanic Ash</div>
-      </button>
-      
-      <button class="clear-hazard-btn" onclick="clearHazardFilter()">
-        Clear Filter
-      </button>
-    </div>
-  </div>
-
-  <div class="controls">
-    <div class="data-source-controls">
-      <div class="filter-group">
-        <label for="dataSourceFilter">Data Source:</label>
-        <select id="dataSourceFilter">
-          <option value="combined">All Sources Combined</option>
-          <option value="kma">KMA Dataset</option>
-          <option value="cma">CMA Dataset</option>
-          <option value="jma">JMA Dataset</option>
-          <option value="jaxa">JAXA Dataset</option>
-          <option value="nasa">NASA Dataset</option>
-          <option value="noaa">NOAA Dataset</option>
-          <option value="rosc">ROSC Dataset</option>
-          <option value="eum">EUM Dataset</option>
-          <option value="imd">IMD Dataset</option>
-          <option value="isro">ISRO Dataset</option>
-          <option value="swcem">SWCEM Dataset</option>
-        </select>
-        <span id="currentSourceIndicator" class="source-indicator combined">ALL SOURCES</span>
-      </div>
-      <button id="refreshBtn" class="refresh-btn">Refresh Data</button>
-    </div>
-
-    <div class="filter-section">
-      <div class="filter-group">
-        <label for="providerFilter">Filter by Provider:</label>
-        <select id="providerFilter">
-          <option value="">All Providers</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="statusFilter">Operational Status:</label>
-        <select id="statusFilter">
-          <option value="">All Status</option>
-          <option value="operational">Operational</option>
-          <option value="development">In Development</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="searchBox">Search Products:</label>
-        <input type="text" id="searchBox" class="search-box" placeholder="Search by name, sensor, use case...">
+    
+    <!-- Statistics Panel -->
+    <div class="stats-panel-top">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number" id="totalProducts">0</div>
+          <div class="stat-label">Total Products</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="visibleProducts">0</div>
+          <div class="stat-label">Visible</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="uniqueProviders">0</div>
+          <div class="stat-label">Providers</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="dataSources">0</div>
+          <div class="stat-label">Sources</div>
+        </div>
       </div>
     </div>
-
-    <div class="stats">
-      <div class="stat-item">
-        <div class="stat-number" id="totalProducts">0</div>
-        <div class="stat-label">Total Products</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" id="visibleProducts">0</div>
-        <div class="stat-label">Visible Products</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" id="uniqueProviders">0</div>
-        <div class="stat-label">Providers</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" id="dataSources">0</div>
-        <div class="stat-label">Active Sources</div>
-      </div>
-    </div>
-  </div>
-
-  <div id="productsContainer">
-    <div class="loading">
-      <p>Loading satellite products data...</p>
-    </div>
-  </div>
+  </header>
 </div>
 
+<!-- Mobile Menu Toggle (hidden on desktop) -->
+<button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle filters menu">
+  ☰ Filters
+</button>
+
+<!-- Main Dashboard Container -->
+<div class="dashboard-container">
+  
+  <!-- Left Sidebar with Filters -->
+  <aside class="dashboard-sidebar" id="dashboardSidebar">
+    
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">Filters & Settings</h2>
+      <p class="sidebar-subtitle">Refine your product search</p>
+    </div>
+    
+    <!-- Sidebar Content -->
+    <div class="sidebar-content">
+      
+      <!-- How to Use Section -->
+      <div class="sidebar-section">
+        <div class="collapsible-header" onclick="toggleHowToUse()">
+          <span class="sidebar-section-title" style="margin: 0;">How to Use</span>
+          <span class="collapse-icon" id="howToUseIcon">▼</span>
+        </div>
+        <div class="collapsible-content" id="howToUseContent">
+          <div style="font-size: 13px; line-height: 1.5; color: #495057; padding-top: 12px;">
+            <p style="margin-bottom: 12px;">
+              <strong style="color: #00529C;">Quick Start:</strong> Select a hazard below to filter products, or use the search box to find specific satellites or use cases.
+            </p>
+            <p style="margin-bottom: 12px;">
+              <strong style="color: #00529C;">Data Sources:</strong> Switch between individual agencies (KMA, CMA, JMA, etc.) or view all combined data.
+            </p>
+            <p style="margin-bottom: 12px;">
+              <strong style="color: #00529C;">Product Cards:</strong> Click any card to expand and see full details, including access links and training materials (🎓).
+            </p>
+            <p style="margin: 0;">
+              <strong style="color: #00529C;">Tip:</strong> Use "Expand All" to compare multiple products at once.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Data Source Filter -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Data Source</div>
+        <div class="filter-group">
+          <label for="dataSourceFilter">Select Source:</label>
+          <select id="dataSourceFilter">
+            <option value="combined">All Sources Combined</option>
+            <option value="kma">KMA Dataset</option>
+            <option value="cma">CMA Dataset</option>
+            <option value="jma">JMA Dataset</option>
+            <option value="jaxa">JAXA Dataset</option>
+            <option value="nasa">NASA Dataset</option>
+            <option value="noaa">NOAA Dataset</option>
+            <option value="rosc">ROSC Dataset</option>
+            <option value="eum">EUM Dataset</option>
+            <option value="imd">IMD Dataset</option>
+            <option value="isro">ISRO Dataset</option>
+            <option value="swcem">SWCEM Dataset</option>
+          </select>
+          <span id="currentSourceIndicator" class="source-indicator combined">ALL SOURCES</span>
+        </div>
+        <button id="refreshBtn" class="refresh-btn">🔄 Refresh Data</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Priority Hazards</div>
+        <div class="hazard-filters">
+          <button class="hazard-btn" data-hazard="flood" onclick="selectHazard(this, 'flood')">
+            <div class="hazard-icon">🌊</div>
+            <div class="hazard-label">Floods</div>
+          </button>
+          
+          <button class="hazard-btn" data-hazard="heat" onclick="selectHazard(this, 'heat')">
+            <div class="hazard-icon">🔥</div>
+            <div class="hazard-label">Heatwaves</div>
+          </button>
+          
+          <button class="hazard-btn" data-hazard="tropical cyclone" onclick="selectHazard(this, 'tropical cyclone')">
+            <div class="hazard-icon">🌀</div>
+            <div class="hazard-label">Tropical Cyclones</div>
+          </button>
+          
+          <button class="hazard-btn" data-hazard="drought" onclick="selectHazard(this, 'drought')">
+            <div class="hazard-icon">🏜️</div>
+            <div class="hazard-label">Droughts</div>
+          </button>
+          
+          <button class="hazard-btn" data-hazard="fire" onclick="selectHazard(this, 'fire')">
+            <div class="hazard-icon">🔥</div>
+            <div class="hazard-label">Wildfires</div>
+          </button>
+          
+          <button class="hazard-btn" data-hazard="volcanic ash" onclick="selectHazard(this, 'volcanic ash')">
+            <div class="hazard-icon">🌋</div>
+            <div class="hazard-label">Volcanic Ash</div>
+          </button>
+          
+          <button class="clear-hazard-btn" onclick="clearHazardFilter()">
+            Clear Hazard Filter
+          </button>
+        </div>
+      </div>
+      
+      <!-- Additional Filters -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Additional Filters</div>
+        
+        <div class="filter-group">
+          <label for="providerFilter">Provider:</label>
+          <select id="providerFilter">
+            <option value="">All Providers</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="statusFilter">Operational Status:</label>
+          <select id="statusFilter">
+            <option value="">All Status</option>
+            <option value="operational">Operational</option>
+            <option value="development">In Development</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="searchBox">Search Keywords:</label>
+          <input 
+            type="text" 
+            id="searchBox" 
+            placeholder="Search products, sensors, use cases..."
+            aria-label="Search satellite products"
+          >
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  
+  <!-- Main Content Area -->
+  <main class="dashboard-main">
+    
+    <!-- Quick Actions Bar -->
+    <div class="quick-actions">
+      <div class="bulk-actions">
+        <button class="action-btn" onclick="expandAll()">
+          ⬇️ Expand All
+        </button>
+        <button class="action-btn secondary" onclick="collapseAll()">
+          ⬆️ Collapse All
+        </button>
+      </div>
+      <div class="results-info">
+        <span id="visibleProductsText">Showing 0 products</span>
+      </div>
+    </div>
+    
+    <!-- Products Container -->
+    <div id="productsContainer">
+      <div class="loading">
+        <p>🛰️ Loading satellite products data...</p>
+        <p style="font-size: 13px; margin-top: 8px; color: #6c757d;">Please wait while we fetch the latest information</p>
+      </div>
+    </div>
+    
+  </main>
+  
+</div>
 <script>
-  let allProducts = [];
-  let filteredProducts = [];
-  let loadedSources = new Set();
-  let currentHazardFilter = '';
+// ===================================
+// Global Variables
+// ===================================
+let allProducts = [];
+let filteredProducts = [];
+let loadedSources = new Set();
+let currentHazardFilter = '';
 
-  // Data sources configuration
-  const DATA_SOURCES = {
-    kma: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=39503549&single=true&output=csv',
-      name: 'Korea Meteorological Administration (KMA)',
-      shortName: 'KMA'
-    },
-    cma: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=984604856&single=true&output=csv',
-      name: 'China Meteorological Administration (CMA)',
-      shortName: 'CMA'
-    },
-    jma: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=127608235&single=true&output=csv',
-      name: 'Japan Meteorological Agency (JMA)',
-      shortName: 'JMA'
-    },
-    jaxa: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=1514702731&single=true&output=csv',
-      name: 'Japan Aerospace Exploration Agency (JAXA)',
-      shortName: 'JAXA'
-   	},
-    nasa: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=1985650139&single=true&output=csv',
-      name: 'National Aeronautics and Space Administration (NASA)',
-      shortName: 'NASA'
-   	},
-    noaa: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=805786885&single=true&output=csv',
-      name: 'National Oceanographic and Atmospheric Administration (NOAA)',
-      shortName: 'NOAA'
-   	},
-    rosc: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=127465695&single=true&output=csv',
-      name: 'Roscosmoc (ROSC)',
-      shortName: 'ROSC'
-   	},
-    eum: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=672734367&single=true&output=csv',
-      name: 'EUMETSAT (EUM)',
-      shortName: 'EUM'
-   	},
-    imd: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=331334327&single=true&output=csv',
-      name: 'India Meteorological Department (IMD)',
-      shortName: 'IMD'
-   	},
-    isro: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=282561569&single=true&output=csv',
-      name: 'Indian Space Research Organization (ISRO)',
-      shortName: 'ISRO'
-   	},
-    swcem: {
-      url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=1992686067&single=true&output=csv',
-      name: 'Space-based Weather and Climate Extremes Monitoring (SWCEM)',
-      shortName: 'SWCEM'
-   	}
+// Data sources configuration
+const DATA_SOURCES = {
+  kma: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=39503549&single=true&output=csv',
+    name: 'Korea Meteorological Administration (KMA)',
+    shortName: 'KMA'
+  },
+  cma: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=984604856&single=true&output=csv',
+    name: 'China Meteorological Administration (CMA)',
+    shortName: 'CMA'
+  },
+  jma: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=127608235&single=true&output=csv',
+    name: 'Japan Meteorological Agency (JMA)',
+    shortName: 'JMA'
+  },
+  jaxa: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=1514702731&single=true&output=csv',
+    name: 'Japan Aerospace Exploration Agency (JAXA)',
+    shortName: 'JAXA'
+  },
+  nasa: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=1985650139&single=true&output=csv',
+    name: 'National Aeronautics and Space Administration (NASA)',
+    shortName: 'NASA'
+  },
+  noaa: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=805786885&single=true&output=csv',
+    name: 'National Oceanographic and Atmospheric Administration (NOAA)',
+    shortName: 'NOAA'
+  },
+  rosc: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=127465695&single=true&output=csv',
+    name: 'Roscosmoc (ROSC)',
+    shortName: 'ROSC'
+  },
+  eum: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=672734367&single=true&output=csv',
+    name: 'EUMETSAT (EUM)',
+    shortName: 'EUM'
+  },
+  imd: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=331334327&single=true&output=csv',
+    name: 'India Meteorological Department (IMD)',
+    shortName: 'IMD'
+  },
+  isro: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=282561569&single=true&output=csv',
+    name: 'Indian Space Research Organization (ISRO)',
+    shortName: 'ISRO'
+  },
+  swcem: {
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_5Hb0zFmFs17gcRDQ-MNjRysKEWdXdVRKuC-iC10bj6u9X9DDsFOk6rubUBM7EBZ79G41Ai2W_lxE/pub?gid=1992686067&single=true&output=csv',
+    name: 'Space-based Weather and Climate Extremes Monitoring (SWCEM)',
+    shortName: 'SWCEM'
+  }
+};
+
+// ===================================
+// Utility Functions
+// ===================================
+
+function normalizeText(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function matchesProvider(productProvider, filterProvider) {
+  if (!productProvider || !filterProvider) return false;
+  
+  const normalizedProduct = normalizeText(productProvider);
+  const normalizedFilter = normalizeText(filterProvider);
+  
+  if (normalizedProduct === normalizedFilter) return true;
+  
+  if (normalizedFilter === 'noaa (nws, cpc)') {
+    return normalizedProduct.includes('noaa') && 
+           (normalizedProduct.includes('nws') || normalizedProduct.includes('cpc'));
+  }
+  
+  const words = normalizedFilter.split(' ');
+  const productWords = normalizedProduct.split(' ');
+  const significantWords = words.filter(word => word.length > 2);
+  
+  return significantWords.every(word => 
+    productWords.some(pWord => pWord.includes(word) || word.includes(pWord))
+  );
+}
+
+function mapColumnHeaders(headers) {
+  console.log('Available headers:', headers);
+  
+  const mapping = {};
+  const patterns = {
+    priorityHazards: /priority\s*hazard/i,
+    inputData: /input\s*data|satellite|sensor/i,
+    productName: /product\s*name|data\s*set|raw\s*data/i,
+    useCase: /use\s*case|purpose|potential/i,
+    frequency: /frequency|revisit|temporal\s*resolution/i,
+    spatialResolution: /spatial\s*resolution/i,
+    spatialExtent: /spatial\s*extent|geographical\s*coverage|coverage/i,
+    temporalExtent: /temporal\s*extent|archived/i,
+    deliveryLatency: /delivery\s*latency|real.*time|delayed/i,
+    format: /format/i,
+    dissemination: /dissemination|mechanism/i,
+    urls: /url/i,
+    dataPolicy: /data\s*policy|policy/i,
+    operationalStatus: /operational|development|status/i,
+    provider: /provider|organization/i,
+    poc: /poc|contact/i,
+    comments: /comment|remark/i,
+    trainingMaterials: /training\s*materials?|training\s*resources?|learning\s*materials?|educational/i
   };
-
-  // Utility function to normalize text for comparison
-  function normalizeText(text) {
-    if (!text || typeof text !== 'string') return '';
-    return text.trim().toLowerCase().replace(/\s+/g, ' ');
-  }
-
-  // Improved provider matching function
-  function matchesProvider(productProvider, filterProvider) {
-    if (!productProvider || !filterProvider) return false;
-    
-    const normalizedProduct = normalizeText(productProvider);
-    const normalizedFilter = normalizeText(filterProvider);
-    
-    // Exact match first
-    if (normalizedProduct === normalizedFilter) return true;
-    
-    // Handle specific NOAA case - only match if the product provider contains the specific components
-    if (normalizedFilter === 'noaa (nws, cpc)') {
-      return normalizedProduct.includes('noaa') && 
-             (normalizedProduct.includes('nws') || normalizedProduct.includes('cpc'));
-    }
-    
-    // For other cases, check if the product provider matches the filter exactly or closely
-    // But don't allow broad matching that would show everything
-    const words = normalizedFilter.split(' ');
-    const productWords = normalizedProduct.split(' ');
-    
-    // All significant words from filter must be present in product
-    const significantWords = words.filter(word => word.length > 2); // Skip short words like "of", "and"
-    return significantWords.every(word => productWords.some(pWord => pWord.includes(word) || word.includes(pWord)));
-  }
-
-  // Intro toggle functionality
-  function toggleIntro() {
-    const content = document.getElementById('introContent');
-    const button = document.querySelector('.intro-toggle');
-    
-    if (content.style.display === 'none') {
-      content.style.display = 'block';
-      button.textContent = 'Hide Guide';
-    } else {
-      content.style.display = 'none';
-      button.textContent = 'Show Guide';
+  
+  for (const [key, pattern] of Object.entries(patterns)) {
+    const matchedHeader = headers.find(header => pattern.test(header));
+    if (matchedHeader) {
+      mapping[key] = matchedHeader;
+      console.log(`Mapped ${key} to: ${matchedHeader}`);
     }
   }
+  
+  return mapping;
+}
 
-  // Hazard filter functionality
-  function selectHazard(button, hazard) {
-    // Clear all active states
-    document.querySelectorAll('.hazard-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    
-    // Set active state
-    button.classList.add('active');
-    currentHazardFilter = hazard;
-    
-    // Apply filters
-    applyFilters();
+// ===================================
+// Mobile Sidebar Functions
+// ===================================
+
+function toggleMobileSidebar() {
+  const sidebar = document.getElementById('dashboardSidebar');
+  sidebar.classList.toggle('mobile-open');
+}
+
+function toggleHowToUse() {
+  const content = document.getElementById('howToUseContent');
+  const icon = document.getElementById('howToUseIcon');
+  
+  content.classList.toggle('collapsed');
+  icon.classList.toggle('collapsed');
+}
+
+// ===================================
+// Loading and Display Functions
+// ===================================
+
+function showLoading() {
+  document.getElementById('productsContainer').innerHTML = `
+    <div class="loading">
+      <p>🛰️ Loading satellite products data...</p>
+      <p style="font-size: 13px; margin-top: 8px; color: #6c757d;">Please wait while we fetch the latest information</p>
+    </div>
+  `;
+}
+
+function showError(message) {
+  document.getElementById('productsContainer').innerHTML = `
+    <div class="no-results">
+      <h3>Error loading data</h3>
+      <div class="error-message">${message}</div>
+      <p>Please check your connection and try refreshing the data.</p>
+    </div>
+  `;
+}
+
+// ===================================
+// Data Loading Functions
+// ===================================
+
+async function loadSingleSource(sourceKey) {
+  const source = DATA_SOURCES[sourceKey];
+  if (!source) {
+    throw new Error(`Unknown data source: ${sourceKey}`);
   }
 
-  function clearHazardFilter() {
-    // Clear all active states
-    document.querySelectorAll('.hazard-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    
-    currentHazardFilter = '';
-    applyFilters();
-  }
-
-  // Enhanced column mapping function to handle flexible headers
-  function mapColumnHeaders(headers) {
-    console.log('Available headers:', headers);
-    
-    const mapping = {};
-    
-    // Define flexible patterns for each field
-    const patterns = {
-      priorityHazards: /priority\s*hazard/i,
-      inputData: /input\s*data|satellite|sensor/i,
-      productName: /product\s*name|data\s*set|raw\s*data/i,
-      useCase: /use\s*case|purpose|potential/i,
-      frequency: /frequency|revisit|temporal\s*resolution/i,
-      spatialResolution: /spatial\s*resolution/i,
-      spatialExtent: /spatial\s*extent|geographical\s*coverage|coverage/i,
-      temporalExtent: /temporal\s*extent|archived/i,
-      deliveryLatency: /delivery\s*latency|real.*time|delayed/i,
-      format: /format/i,
-      dissemination: /dissemination|mechanism/i,
-      urls: /url/i,
-      dataPolicy: /data\s*policy|policy/i,
-      operationalStatus: /operational|development|status/i,
-      provider: /provider|organization/i,
-      poc: /poc|contact/i,
-      comments: /comment|remark/i,
-      trainingMaterials: /training\s*materials?|training\s*resources?|learning\s*materials?|educational/i
-    };
-    
-    // Try to match headers with patterns
-    for (const [key, pattern] of Object.entries(patterns)) {
-      const matchedHeader = headers.find(header => pattern.test(header));
-      if (matchedHeader) {
-        mapping[key] = matchedHeader;
-        console.log(`Mapped ${key} to: ${matchedHeader}`);
-      }
-    }
-    
-    return mapping;
-  }
-
-  function showLoading() {
-    document.getElementById('productsContainer').innerHTML = '<div class="loading"><p>Loading satellite products data...</p></div>';
-  }
-
-  function showError(message) {
-    document.getElementById('productsContainer').innerHTML = `
-<div class="no-results">
-<h3>Error loading data</h3>
-<div class="error-message">${message}</div>
-<p>Please check your connection and try refreshing the data.</p>
-  </div>
-`;
-  }
-
-  async function loadSingleSource(sourceKey) {
-    const source = DATA_SOURCES[sourceKey];
-    if (!source) {
-      throw new Error(`Unknown data source: ${sourceKey}`);
+  try {
+    const response = await fetch(source.url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    try {
-      const response = await fetch(source.url);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+    const csvText = await response.text();
 
-      const csvText = await response.text();
-
-      return new Promise((resolve, reject) => {
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          dynamicTyping: false,
-          transformHeader: function(header) {
-            // Clean up headers by trimming whitespace
-            return header.trim();
-          },
-          complete: function(results) {
-            if (results.errors.length > 0) {
-              console.warn(`Parsing warnings for ${sourceKey}:`, results.errors);
-            }
-
-            // Map column headers dynamically
-            const columnMap = mapColumnHeaders(results.meta.fields);
-            
-            const validProducts = results.data.filter(row => {
-              const productName = row[columnMap.productName] || '';
-              return productName.trim() !== '';
-            });
-
-            // Add source information and column mapping to each product
-            validProducts.forEach(product => {
-              product._dataSource = sourceKey;
-              product._sourceName = source.name;
-              product._sourceShortName = source.shortName;
-              product._columnMap = columnMap;
-            });
-
-            console.log(`Loaded ${validProducts.length} products from ${sourceKey}`);
-            resolve(validProducts);
-          },
-          error: function(error) {
-            reject(new Error(`CSV parsing failed for ${sourceKey}: ${error.message}`));
+    return new Promise((resolve, reject) => {
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: false,
+        transformHeader: function(header) {
+          return header.trim();
+        },
+        complete: function(results) {
+          if (results.errors.length > 0) {
+            console.warn(`Parsing warnings for ${sourceKey}:`, results.errors);
           }
-        });
-      });
-    } catch (error) {
-      throw new Error(`Failed to load ${source.name}: ${error.message}`);
-    }
-  }
 
-  async function loadSatelliteProducts() {
-    const selectedSource = document.getElementById('dataSourceFilter').value;
-    const refreshBtn = document.getElementById('refreshBtn');
+          const columnMap = mapColumnHeaders(results.meta.fields);
+          
+          const validProducts = results.data.filter(row => {
+            const productName = row[columnMap.productName] || '';
+            return productName.trim() !== '';
+          });
 
-    showLoading();
-    refreshBtn.disabled = true;
-    refreshBtn.textContent = 'Loading...';
+          validProducts.forEach(product => {
+            product._dataSource = sourceKey;
+            product._sourceName = source.name;
+            product._sourceShortName = source.shortName;
+            product._columnMap = columnMap;
+          });
 
-    try {
-      allProducts = [];
-      loadedSources.clear();
-
-      if (selectedSource === 'combined') {
-        // Load all sources
-        const promises = Object.keys(DATA_SOURCES).map(async sourceKey => {
-          try {
-            const products = await loadSingleSource(sourceKey);
-            loadedSources.add(sourceKey);
-            return products;
-          } catch (error) {
-            console.error(`Error loading ${sourceKey}:`, error);
-            return []; // Return empty array for failed sources
-          }
-        });
-
-        const results = await Promise.all(promises);
-        allProducts = results.flat();
-
-        if (allProducts.length === 0) {
-          throw new Error('No data could be loaded from any source');
+          console.log(`Loaded ${validProducts.length} products from ${sourceKey}`);
+          resolve(validProducts);
+        },
+        error: function(error) {
+          reject(new Error(`CSV parsing failed for ${sourceKey}: ${error.message}`));
         }
-      } else {
-        // Load single source
-        allProducts = await loadSingleSource(selectedSource);
-        loadedSources.add(selectedSource);
-      }
-
-      updateSourceIndicator(selectedSource);
-      clearFilterOptions();
-      initializeFilters();
-      filteredProducts = [...allProducts];
-      displayProducts();
-      updateStats();
-
-    } catch (error) {
-      console.error('Error loading satellite products:', error);
-      showError(error.message);
-    } finally {
-      refreshBtn.disabled = false;
-      refreshBtn.textContent = 'Refresh Data';
-    }
+      });
+    });
+  } catch (error) {
+    throw new Error(`Failed to load ${source.name}: ${error.message}`);
   }
+}
 
-  function updateSourceIndicator(selectedSource) {
-    const indicator = document.getElementById('currentSourceIndicator');
-    indicator.className = `source-indicator ${selectedSource}`;
+async function loadSatelliteProducts() {
+  const selectedSource = document.getElementById('dataSourceFilter').value;
+  const refreshBtn = document.getElementById('refreshBtn');
+
+  showLoading();
+  refreshBtn.disabled = true;
+  refreshBtn.textContent = 'Loading...';
+
+  try {
+    allProducts = [];
+    loadedSources.clear();
 
     if (selectedSource === 'combined') {
-      indicator.textContent = `ALL SOURCES (${loadedSources.size}/${Object.keys(DATA_SOURCES).length})`;
+      // Load all sources
+      const promises = Object.keys(DATA_SOURCES).map(async sourceKey => {
+        try {
+          const products = await loadSingleSource(sourceKey);
+          loadedSources.add(sourceKey);
+          return products;
+        } catch (error) {
+          console.error(`Error loading ${sourceKey}:`, error);
+          return []; // Return empty array for failed sources
+        }
+      });
+
+      const results = await Promise.all(promises);
+      allProducts = results.flat();
+
+      if (allProducts.length === 0) {
+        throw new Error('No data could be loaded from any source');
+      }
     } else {
-      indicator.textContent = DATA_SOURCES[selectedSource].shortName;
+      // Load single source
+      allProducts = await loadSingleSource(selectedSource);
+      loadedSources.add(selectedSource);
     }
-  }
 
-  function clearFilterOptions() {
-    const providerFilter = document.getElementById('providerFilter');
-    providerFilter.innerHTML = '<option value="">All Providers</option>';
-  }
-
-  function initializeFilters() {
-    // Populate provider filter with normalized names
-    const providers = new Set();
-    allProducts.forEach(product => {
-      const columnMap = product._columnMap;
-      const provider = product[columnMap.provider];
-      if (provider && provider.trim()) {
-        providers.add(provider.trim());
-      }
-    });
-
-    const providerFilter = document.getElementById('providerFilter');
-    Array.from(providers).sort().forEach(provider => {
-      const option = document.createElement('option');
-      option.value = provider;
-      option.textContent = provider;
-      providerFilter.appendChild(option);
-    });
-
-    console.log('Available providers:', Array.from(providers));
-  }
-
-  function applyFilters() {
-    const providerFilter = document.getElementById('providerFilter').value;
-    const statusFilter = document.getElementById('statusFilter').value;
-    const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-
-    console.log('Applying filters:', { providerFilter, statusFilter, searchTerm, currentHazardFilter });
-
-    filteredProducts = allProducts.filter(product => {
-      const columnMap = product._columnMap;
-      
-      // Hazard filter (from buttons)
-      if (currentHazardFilter) {
-        const hazards = product[columnMap.priorityHazards] || '';
-        if (!hazards.toLowerCase().includes(currentHazardFilter.toLowerCase())) {
-          return false;
-        }
-      }
-
-      // FIXED: Provider filter with improved matching
-      if (providerFilter) {
-        const productProvider = product[columnMap.provider];
-        if (!matchesProvider(productProvider, providerFilter)) {
-          console.log(`Provider mismatch: "${productProvider}" vs "${providerFilter}"`);
-          return false;
-        }
-      }
-
-      // Status filter
-      if (statusFilter) {
-        const status = product[columnMap.operationalStatus]?.toLowerCase() || '';
-        if (statusFilter === 'operational' && !status.includes('operational')) {
-          return false;
-        }
-        if (statusFilter === 'development' && !status.includes('development')) {
-          return false;
-        }
-      }
-
-      // Search filter
-      if (searchTerm) {
-        const searchableText = [
-          product[columnMap.productName],
-          product[columnMap.inputData],
-          product[columnMap.useCase],
-          product[columnMap.provider],
-          product[columnMap.priorityHazards],
-          product._sourceName
-        ].join(' ').toLowerCase();
-
-        if (!searchableText.includes(searchTerm)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-
-    console.log(`Filtered ${filteredProducts.length} products from ${allProducts.length} total`);
+    updateSourceIndicator(selectedSource);
+    clearFilterOptions();
+    initializeFilters();
+    filteredProducts = [...allProducts];
     displayProducts();
     updateStats();
+
+  } catch (error) {
+    console.error('Error loading satellite products:', error);
+    showError(error.message);
+  } finally {
+    refreshBtn.disabled = false;
+    refreshBtn.textContent = 'Refresh Data';
   }
+}
 
-  function displayProducts() {
-    const container = document.getElementById('productsContainer');
+function updateSourceIndicator(selectedSource) {
+  const indicator = document.getElementById('currentSourceIndicator');
+  indicator.className = `source-indicator ${selectedSource}`;
 
-    if (filteredProducts.length === 0) {
-      container.innerHTML = '<div class="no-results"><h3>No products found</h3><p>Try adjusting your filters or search terms.</p></div>';
-      return;
+  if (selectedSource === 'combined') {
+    indicator.textContent = `ALL SOURCES (${loadedSources.size}/${Object.keys(DATA_SOURCES).length})`;
+  } else {
+    indicator.textContent = DATA_SOURCES[selectedSource].shortName;
+  }
+}
+
+function clearFilterOptions() {
+  const providerFilter = document.getElementById('providerFilter');
+  providerFilter.innerHTML = '<option value="">All Providers</option>';
+}
+
+function initializeFilters() {
+  const providers = new Set();
+  allProducts.forEach(product => {
+    const columnMap = product._columnMap;
+    const provider = product[columnMap.provider];
+    if (provider && provider.trim()) {
+      providers.add(provider.trim());
     }
+  });
 
-    const productsGrid = document.createElement('div');
-    productsGrid.className = 'products-grid';
+  const providerFilter = document.getElementById('providerFilter');
+  Array.from(providers).sort().forEach(provider => {
+    const option = document.createElement('option');
+    option.value = provider;
+    option.textContent = provider;
+    providerFilter.appendChild(option);
+  });
 
-    filteredProducts.forEach(product => {
-      const card = createProductCard(product);
-      productsGrid.appendChild(card);
-    });
+  console.log('Available providers:', Array.from(providers));
+}
 
-    container.innerHTML = '';
-    container.appendChild(productsGrid);
+// ===================================
+// Filter Functions
+// ===================================
+
+function selectHazard(button, hazard) {
+  document.querySelectorAll('.hazard-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  button.classList.add('active');
+  currentHazardFilter = hazard;
+  
+  applyFilters();
+  
+  // Close mobile sidebar after selection
+  if (window.innerWidth <= 768) {
+    document.getElementById('dashboardSidebar').classList.remove('mobile-open');
   }
+}
 
-  function createProductCard(product) {
-    const card = document.createElement('div');
+function clearHazardFilter() {
+  document.querySelectorAll('.hazard-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  currentHazardFilter = '';
+  applyFilters();
+}
+
+function applyFilters() {
+  const providerFilter = document.getElementById('providerFilter').value;
+  const statusFilter = document.getElementById('statusFilter').value;
+  const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+
+  console.log('Applying filters:', { providerFilter, statusFilter, searchTerm, currentHazardFilter });
+
+  filteredProducts = allProducts.filter(product => {
     const columnMap = product._columnMap;
     
-    card.className = 'product-card';
-
-    const hazardTags = product[columnMap.priorityHazards] ? 
-      product[columnMap.priorityHazards].split(',').map(h => h.trim()).filter(h => h) : [];
-
-    const operationalStatus = product[columnMap.operationalStatus]?.toLowerCase() || '';
-    const isOperational = operationalStatus.includes('operational');
-    const isDevelopment = operationalStatus.includes('development');
-
-    card.innerHTML = `
-<div class="product-header">
-  <div class="product-title">
-    ${product[columnMap.productName] || 'Unnamed Product'}
-    ${isOperational ? '<span class="operational-status operational">Operational</span>' : ''}
-    ${isDevelopment ? '<span class="operational-status development">In Development</span>' : ''}
-  </div>
-  <div class="hazard-tags">
-    ${hazardTags.map(tag => `<span class="hazard-tag">${tag}</span>`).join('')}
-  </div>
-  <div class="provider-info">
-    ${product._sourceShortName ? `<span class="source-indicator ${product._dataSource}">${product._sourceShortName}</span> 
-    ${product[columnMap.provider] || 'Unknown Provider'}` : ''}
-  </div>
-</div>
-
-<div class="product-details">
-  ${createDetailRow('Satellite/Sensor', product[columnMap.inputData])}
-  ${createDetailRow('Use Cases', product[columnMap.useCase])}
-  ${createDetailRow('Frequency/Revisit', product[columnMap.frequency])}
-  ${createDetailRow('Spatial Resolution', product[columnMap.spatialResolution])}
-  ${createDetailRow('Coverage', product[columnMap.spatialExtent])}
-  ${createDetailRow('Temporal Extent', product[columnMap.temporalExtent])}
-  ${createDetailRow('Delivery Latency', product[columnMap.deliveryLatency])}
-  ${createDetailRow('Format', product[columnMap.format])}
-  ${createDetailRow('Dissemination', product[columnMap.dissemination])}
-  ${createDetailRow('Data Policy', product[columnMap.dataPolicy])}
-  ${product[columnMap.poc] ? createDetailRow('Point of Contact', product[columnMap.poc]) : ''}
-  ${product[columnMap.comments] ? createDetailRow('Comments', product[columnMap.comments]) : ''}
-</div>
-
-${createProductLinks(product[columnMap.urls])}
-${createTrainingMaterials(product[columnMap.trainingMaterials])}
-`;
-
-    return card;
-  }
-
-  function createDetailRow(label, value) {
-    if (!value || value.toString().trim() === '') return '';
-    return `
-<div class="detail-row">
-  <div class="detail-label">${label}:</div>
-  <div class="detail-value">${value}</div>
-</div>
-`;
-  }
-
-  function createProductLinks(urls) {
-    if (!urls || urls.toString().trim() === '') return '';
-
-    const urlList = urls.split(/[,;\n\r]+/).map(url => url.trim()).filter(url => url);
-    if (urlList.length === 0) return '';
-
-    const linksHtml = urlList.map((url, index) => {
-      let cleanUrl = url;
-      if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-        cleanUrl = 'https://' + url;
+    // Hazard filter
+    if (currentHazardFilter) {
+      const hazards = product[columnMap.priorityHazards] || '';
+      if (!hazards.toLowerCase().includes(currentHazardFilter.toLowerCase())) {
+        return false;
       }
+    }
 
-      const linkText = urlList.length === 1 ? 'Access Product' : `Access Link ${index + 1}`;
-      return `<a href="${cleanUrl}" target="_blank" class="product-link">${linkText}</a>`;
-    }).join('');
-
-    return `<div class="product-links">${linksHtml}</div>`;
-  }
-
-  function createTrainingMaterials(trainingMaterials) {
-    if (!trainingMaterials || trainingMaterials.toString().trim() === '') return '';
-
-    // Split by common delimiters and clean up URLs
-    const trainingList = trainingMaterials.split(/[,;\n\r]+/).map(url => url.trim()).filter(url => url);
-    if (trainingList.length === 0) return '';
-
-    const trainingLinksHtml = trainingList.map((url, index) => {
-      let cleanUrl = url;
-      if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-        cleanUrl = 'https://' + url;
+    // Provider filter
+    if (providerFilter) {
+      const productProvider = product[columnMap.provider];
+      if (!matchesProvider(productProvider, providerFilter)) {
+        return false;
       }
+    }
 
-      // Create descriptive link text
-      let linkText = 'Training Material';
-      if (trainingList.length > 1) {
-        linkText = `Training ${index + 1}`;
+    // Status filter
+    if (statusFilter) {
+      const status = product[columnMap.operationalStatus]?.toLowerCase() || '';
+      if (statusFilter === 'operational' && !status.includes('operational')) {
+        return false;
       }
-
-      // Try to make link text more descriptive based on URL
-      if (url.toLowerCase().includes('tutorial')) {
-        linkText = trainingList.length === 1 ? 'Tutorial' : `Tutorial ${index + 1}`;
-      } else if (url.toLowerCase().includes('guide')) {
-        linkText = trainingList.length === 1 ? 'User Guide' : `Guide ${index + 1}`;
-      } else if (url.toLowerCase().includes('manual')) {
-        linkText = trainingList.length === 1 ? 'Manual' : `Manual ${index + 1}`;
-      } else if (url.toLowerCase().includes('documentation')) {
-        linkText = trainingList.length === 1 ? 'Documentation' : `Documentation ${index + 1}`;
+      if (statusFilter === 'development' && !status.includes('development')) {
+        return false;
       }
+    }
 
-      return `<a href="${cleanUrl}" target="_blank" class="training-link">${linkText}</a>`;
-    }).join('');
+    // Search filter
+    if (searchTerm) {
+      const searchableText = [
+        product[columnMap.productName],
+        product[columnMap.inputData],
+        product[columnMap.useCase],
+        product[columnMap.provider],
+        product[columnMap.priorityHazards],
+        product._sourceName
+      ].join(' ').toLowerCase();
 
-    return `
-<div class="training-materials">
-  <div class="training-materials-title">Training Materials</div>
-  <div class="training-links">${trainingLinksHtml}</div>
-</div>
-`;
-  }
-
-  function updateStats() {
-    document.getElementById('totalProducts').textContent = allProducts.length;
-    document.getElementById('visibleProducts').textContent = filteredProducts.length;
-    document.getElementById('dataSources').textContent = loadedSources.size;
-
-    const uniqueProviders = new Set();
-    allProducts.forEach(product => {
-      const columnMap = product._columnMap;
-      const provider = product[columnMap.provider];
-      if (provider && provider.trim()) {
-        uniqueProviders.add(provider.trim());
+      if (!searchableText.includes(searchTerm)) {
+        return false;
       }
-    });
-    document.getElementById('uniqueProviders').textContent = uniqueProviders.size;
-  }
+    }
 
-  // Event listeners
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize event listeners
-    document.getElementById('dataSourceFilter').addEventListener('change', loadSatelliteProducts);
-    document.getElementById('refreshBtn').addEventListener('click', loadSatelliteProducts);
-    document.getElementById('providerFilter').addEventListener('change', applyFilters);
-    document.getElementById('statusFilter').addEventListener('change', applyFilters);
-    document.getElementById('searchBox').addEventListener('input', applyFilters);
-
-    // Load initial data
-    loadSatelliteProducts();
+    return true;
   });
+
+  console.log(`Filtered ${filteredProducts.length} products from ${allProducts.length} total`);
+  displayProducts();
+  updateStats();
+}
+
+// ===================================
+// Display Functions
+// ===================================
+
+function displayProducts() {
+  const container = document.getElementById('productsContainer');
+
+  if (filteredProducts.length === 0) {
+    container.innerHTML = `
+      <div class="no-results">
+        <h3>No products found</h3>
+        <p>Try adjusting your filters or search terms.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const productsGrid = document.createElement('div');
+  productsGrid.className = 'products-grid';
+
+  filteredProducts.forEach(product => {
+    const card = createProductCard(product);
+    productsGrid.appendChild(card);
+  });
+
+  container.innerHTML = '';
+  container.appendChild(productsGrid);
+}
+
+function createProductCard(product) {
+  const card = document.createElement('div');
+  const columnMap = product._columnMap;
+  
+  card.className = 'product-card';
+
+  const hazardTags = product[columnMap.priorityHazards] ? 
+    product[columnMap.priorityHazards].split(',').map(h => h.trim()).filter(h => h) : [];
+
+  const operationalStatus = product[columnMap.operationalStatus]?.toLowerCase() || '';
+  const isOperational = operationalStatus.includes('operational');
+  const isDevelopment = operationalStatus.includes('development');
+
+  card.innerHTML = `
+    <div class="product-card-header">
+      <div class="expand-icon">▶</div>
+      <div class="product-header-content">
+        <div class="product-title">
+          ${product[columnMap.productName] || 'Unnamed Product'}
+        </div>
+        <div class="product-meta">
+          <div class="hazard-tags">
+            ${hazardTags.slice(0, 3).map(tag => `<span class="hazard-tag">${tag}</span>`).join('')}
+            ${hazardTags.length > 3 ? `<span class="hazard-tag">+${hazardTags.length - 3} more</span>` : ''}
+          </div>
+          ${product._sourceShortName ? `<span class="source-indicator ${product._dataSource}">${product._sourceShortName}</span>` : ''}
+          ${isOperational ? '<span class="operational-status operational">Operational</span>' : ''}
+          ${isDevelopment ? '<span class="operational-status development">In Development</span>' : ''}
+        </div>
+      </div>
+    </div>
+    
+    <div class="product-card-body">
+      <div class="product-card-body-inner">
+        <div class="provider-info">
+          <strong>Provider:</strong> ${product[columnMap.provider] || 'Unknown Provider'}
+        </div>
+        
+        ${hazardTags.length > 3 ? `
+          <div class="detail-row">
+            <div class="detail-label">All Hazards:</div>
+            <div class="detail-value">
+              <div class="hazard-tags">
+                ${hazardTags.map(tag => `<span class="hazard-tag">${tag}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+        
+        <div class="product-details">
+          ${createDetailRow('Satellite/Sensor', product[columnMap.inputData])}
+          ${createDetailRow('Use Cases', product[columnMap.useCase])}
+          ${createDetailRow('Frequency/Revisit', product[columnMap.frequency])}
+          ${createDetailRow('Spatial Resolution', product[columnMap.spatialResolution])}
+          ${createDetailRow('Coverage', product[columnMap.spatialExtent])}
+          ${createDetailRow('Temporal Extent', product[columnMap.temporalExtent])}
+          ${createDetailRow('Delivery Latency', product[columnMap.deliveryLatency])}
+          ${createDetailRow('Format', product[columnMap.format])}
+          ${createDetailRow('Dissemination', product[columnMap.dissemination])}
+          ${createDetailRow('Data Policy', product[columnMap.dataPolicy])}
+          ${product[columnMap.poc] ? createDetailRow('Point of Contact', product[columnMap.poc]) : ''}
+          ${product[columnMap.comments] ? createDetailRow('Comments', product[columnMap.comments]) : ''}
+        </div>
+
+        ${createProductLinks(product[columnMap.urls])}
+        ${createTrainingMaterials(product[columnMap.trainingMaterials])}
+      </div>
+    </div>
+  `;
+
+  const header = card.querySelector('.product-card-header');
+  header.addEventListener('click', function() {
+    card.classList.toggle('expanded');
+  });
+
+  return card;
+}
+
+function createDetailRow(label, value) {
+  if (!value || value.toString().trim() === '') return '';
+  return `
+    <div class="detail-row">
+      <div class="detail-label">${label}:</div>
+      <div class="detail-value">${value}</div>
+    </div>
+  `;
+}
+
+function createProductLinks(urls) {
+  if (!urls || urls.toString().trim() === '') return '';
+
+  const urlList = urls.split(/[,;\n\r]+/).map(url => url.trim()).filter(url => url);
+  if (urlList.length === 0) return '';
+
+  const linksHtml = urlList.map((url, index) => {
+    let cleanUrl = url;
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      cleanUrl = 'https://' + url;
+    }
+
+    const linkText = urlList.length === 1 ? '🔗 Access Product' : `🔗 Access Link ${index + 1}`;
+    return `<a href="${cleanUrl}" target="_blank" class="product-link">${linkText}</a>`;
+  }).join('');
+
+  return `<div class="product-links">${linksHtml}</div>`;
+}
+
+function createTrainingMaterials(trainingMaterials) {
+  if (!trainingMaterials || trainingMaterials.toString().trim() === '') return '';
+
+  const trainingList = trainingMaterials.split(/[,;\n\r]+/).map(url => url.trim()).filter(url => url);
+  if (trainingList.length === 0) return '';
+
+  const trainingLinksHtml = trainingList.map((url, index) => {
+    let cleanUrl = url;
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      cleanUrl = 'https://' + url;
+    }
+
+    let linkText = 'Training Material';
+    if (trainingList.length > 1) {
+      linkText = `Training ${index + 1}`;
+    }
+
+    if (url.toLowerCase().includes('tutorial')) {
+      linkText = trainingList.length === 1 ? 'Tutorial' : `Tutorial ${index + 1}`;
+    } else if (url.toLowerCase().includes('guide')) {
+      linkText = trainingList.length === 1 ? 'User Guide' : `Guide ${index + 1}`;
+    } else if (url.toLowerCase().includes('manual')) {
+      linkText = trainingList.length === 1 ? 'Manual' : `Manual ${index + 1}`;
+    } else if (url.toLowerCase().includes('documentation')) {
+      linkText = trainingList.length === 1 ? 'Documentation' : `Documentation ${index + 1}`;
+    }
+
+    return `<a href="${cleanUrl}" target="_blank" class="training-link">${linkText}</a>`;
+  }).join('');
+
+  return `
+    <div class="training-materials">
+      <div class="training-materials-title">Training Materials</div>
+      <div class="training-links">${trainingLinksHtml}</div>
+    </div>
+  `;
+}
+
+function updateStats() {
+  document.getElementById('totalProducts').textContent = allProducts.length;
+  document.getElementById('visibleProducts').textContent = filteredProducts.length;
+  document.getElementById('dataSources').textContent = loadedSources.size;
+
+  const uniqueProviders = new Set();
+  allProducts.forEach(product => {
+    const columnMap = product._columnMap;
+    const provider = product[columnMap.provider];
+    if (provider && provider.trim()) {
+      uniqueProviders.add(provider.trim());
+    }
+  });
+  document.getElementById('uniqueProviders').textContent = uniqueProviders.size;
+
+  const visibleText = document.getElementById('visibleProductsText');
+  if (visibleText) {
+    visibleText.textContent = `Showing ${filteredProducts.length} of ${allProducts.length} products`;
+  }
+}
+
+// ===================================
+// Bulk Actions
+// ===================================
+
+function expandAll() {
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.classList.add('expanded');
+  });
+}
+
+function collapseAll() {
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.classList.remove('expanded');
+  });
+}
+
+// ===================================
+// Event Listeners & Initialization
+// ===================================
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize event listeners
+  document.getElementById('dataSourceFilter').addEventListener('change', loadSatelliteProducts);
+  document.getElementById('refreshBtn').addEventListener('click', loadSatelliteProducts);
+  document.getElementById('providerFilter').addEventListener('change', applyFilters);
+  document.getElementById('statusFilter').addEventListener('change', applyFilters);
+  document.getElementById('searchBox').addEventListener('input', applyFilters);
+
+  // Close sidebar when clicking outside on mobile
+  document.addEventListener('click', function(event) {
+    if (window.innerWidth <= 768) {
+      const sidebar = document.getElementById('dashboardSidebar');
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      
+      if (sidebar && toggle && !sidebar.contains(event.target) && !toggle.contains(event.target)) {
+        sidebar.classList.remove('mobile-open');
+      }
+    }
+  });
+
+  // Load initial data
+  loadSatelliteProducts();
+});
 </script>
