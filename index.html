@@ -13,6 +13,9 @@
   --wmo-gray-medium: #495057;
   --wmo-gray-light: #e9ecef;
   --wmo-gray-lighter: #f8f9fa;
+  --wmo-success: #28a745;
+  --wmo-warning: #ffc107;
+  --wmo-danger: #dc3545;
   --sidebar-width: 320px;
   --header-height: 60px;
   --spacing-xs: 8px;
@@ -266,19 +269,91 @@ h4 {
 }
 
 /* ===================================
+   Active Filter Badge
+   =================================== */
+
+.active-filters-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--wmo-blue-primary), var(--wmo-blue-secondary));
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: var(--spacing-sm);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.active-filters-badge.hidden {
+  display: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* ===================================
+   Clear All Filters Button
+   =================================== */
+
+.clear-all-filters-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--wmo-danger), #c82333);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all var(--transition-speed) ease;
+  margin-bottom: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.clear-all-filters-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.clear-all-filters-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===================================
    Filter Controls in Sidebar
    =================================== */
 
 .filter-group {
   margin-bottom: var(--spacing-lg);
+  position: relative;
 }
 
 .filter-group label {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-weight: 600;
   color: var(--wmo-gray-dark);
   font-size: 14px;
   margin-bottom: var(--spacing-xs);
+}
+
+.filter-active-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--wmo-success);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
 }
 
 .filter-group select,
@@ -297,6 +372,53 @@ h4 {
   outline: none;
   border-color: var(--wmo-blue-primary);
   box-shadow: 0 0 0 3px rgba(0, 82, 156, 0.1);
+}
+
+/* Active filter styling */
+.filter-group select.active,
+.filter-group input.active {
+  border-color: var(--wmo-success);
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.05), white);
+}
+
+/* Clear button for search input */
+.search-wrapper {
+  position: relative;
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--wmo-gray-medium);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all var(--transition-speed) ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.clear-search-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.clear-search-btn:hover {
+  background: var(--wmo-danger);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.search-wrapper input {
+  padding-right: 40px;
 }
 
 /* Source Indicator */
@@ -380,6 +502,11 @@ h4 {
   border-color: var(--wmo-blue-primary);
 }
 
+.hazard-btn:focus {
+  outline: 3px solid rgba(0, 82, 156, 0.3);
+  outline-offset: 2px;
+}
+
 .hazard-btn.active {
   background: linear-gradient(135deg, var(--wmo-blue-primary), var(--wmo-blue-secondary));
   border-color: var(--wmo-blue-primary);
@@ -416,6 +543,12 @@ h4 {
 .clear-hazard-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.clear-hazard-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ===================================
@@ -805,6 +938,50 @@ h4 {
 }
 
 /* ===================================
+   Loading Overlay
+   =================================== */
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.loading-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.loading-spinner {
+  text-align: center;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--wmo-gray-light);
+  border-top: 4px solid var(--wmo-blue-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto var(--spacing-md);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===================================
    Mobile Responsive Design
    =================================== */
 
@@ -942,8 +1119,16 @@ h4 {
   </header>
 </div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+    <p style="color: var(--wmo-blue-primary); font-weight: 600;">Loading data...</p>
+  </div>
+</div>
+
 <!-- Mobile Menu Toggle (hidden on desktop) -->
-<button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle filters menu">
+<button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle filters menu">
   ☰ Filters
 </button>
 
@@ -955,16 +1140,23 @@ h4 {
     
     <!-- Sidebar Header -->
     <div class="sidebar-header">
-      <h2 class="sidebar-title">Filters & Settings</h2>
-      <p class="sidebar-subtitle">Refine your product search</p>
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <h2 class="sidebar-title">Filters & Settings</h2>
+          <p class="sidebar-subtitle">Refine your product search</p>
+        </div>
+        <span class="active-filters-badge hidden" id="activeFiltersBadge">
+          <span id="activeFiltersCount">0</span> active
+        </span>
+      </div>
     </div>
     
     <!-- Sidebar Content -->
-    <div class="sidebar-content">
+    <div class="sidebar-content">      
       
       <!-- How to Use Section -->
       <div class="sidebar-section">
-        <div class="collapsible-header" onclick="toggleHowToUse()">
+        <div class="collapsible-header" id="howToUseHeader">
           <span class="sidebar-section-title" style="margin: 0;">How to Use</span>
           <span class="collapse-icon" id="howToUseIcon">▼</span>
         </div>
@@ -985,6 +1177,11 @@ h4 {
           </div>
         </div>
       </div>
+      
+      <!-- Clear All Filters Button -->
+      <button class="clear-all-filters-btn" id="clearAllFiltersBtn" disabled>
+        🗑️ Clear All Filters
+      </button>
       
       <!-- Data Source Filter -->
       <div class="sidebar-section">
@@ -1008,8 +1205,11 @@ h4 {
           <span id="currentSourceIndicator" class="source-indicator combined">ALL SOURCES</span>
         </div>
         <div class="filter-group">
-          <label for="providerFilter">Provider:</label>
-          <select id="providerFilter">
+          <label for="providerFilter">
+            Provider:
+            <span class="filter-active-indicator" id="providerActiveIndicator" style="display: none;"></span>
+          </label>
+          <select id="providerFilter" aria-label="Filter by provider">
             <option value="">All Providers</option>
           </select>
         </div>
@@ -1018,39 +1218,42 @@ h4 {
       
       <!-- Hazard Filters -->
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Priority Hazards</div>
+        <div class="sidebar-section-title">
+          Priority Hazards
+          <span class="filter-active-indicator" id="hazardActiveIndicator" style="display: none; margin-left: 8px;"></span>
+        </div>
         <div class="hazard-filters">
-          <button class="hazard-btn" data-hazard="flood" onclick="selectHazard(this, 'flood')">
+          <button class="hazard-btn" data-hazard="flood" tabindex="0" aria-label="Filter by floods">
             <div class="hazard-icon">🌊</div>
             <div class="hazard-label">Floods</div>
           </button>
           
-          <button class="hazard-btn" data-hazard="heat" onclick="selectHazard(this, 'heat')">
+          <button class="hazard-btn" data-hazard="heat" tabindex="0" aria-label="Filter by heatwaves">
             <div class="hazard-icon">🔥</div>
             <div class="hazard-label">Heatwaves</div>
           </button>
           
-          <button class="hazard-btn" data-hazard="tropical cyclone" onclick="selectHazard(this, 'tropical cyclone')">
+          <button class="hazard-btn" data-hazard="tropical cyclone" tabindex="0" aria-label="Filter by tropical cyclones">
             <div class="hazard-icon">🌀</div>
             <div class="hazard-label">Tropical Cyclones</div>
           </button>
           
-          <button class="hazard-btn" data-hazard="drought" onclick="selectHazard(this, 'drought')">
+          <button class="hazard-btn" data-hazard="drought" tabindex="0" aria-label="Filter by droughts">
             <div class="hazard-icon">🏜️</div>
             <div class="hazard-label">Droughts</div>
           </button>
           
-          <button class="hazard-btn" data-hazard="fire" onclick="selectHazard(this, 'fire')">
+          <button class="hazard-btn" data-hazard="fire" tabindex="0" aria-label="Filter by wildfires">
             <div class="hazard-icon">🔥</div>
             <div class="hazard-label">Wildfires</div>
           </button>
           
-          <button class="hazard-btn" data-hazard="volcanic ash" onclick="selectHazard(this, 'volcanic ash')">
+          <button class="hazard-btn" data-hazard="volcanic ash" tabindex="0" aria-label="Filter by volcanic ash">
             <div class="hazard-icon">🌋</div>
             <div class="hazard-label">Volcanic Ash</div>
           </button>
           
-          <button class="clear-hazard-btn" onclick="clearHazardFilter()">
+          <button class="clear-hazard-btn" id="clearHazardBtn" disabled>
             Clear Hazard Filter
           </button>
         </div>
@@ -1061,8 +1264,11 @@ h4 {
         <div class="sidebar-section-title">Additional Filters</div>   
         
         <div class="filter-group">
-          <label for="statusFilter">Operational Status:</label>
-          <select id="statusFilter">
+          <label for="statusFilter">
+            Operational Status:
+            <span class="filter-active-indicator" id="statusActiveIndicator" style="display: none;"></span>
+          </label>
+          <select id="statusFilter" aria-label="Filter by operational status">
             <option value="">All Status</option>
             <option value="operational">Operational</option>
             <option value="development">In Development</option>
@@ -1070,8 +1276,11 @@ h4 {
         </div>
         
         <div class="filter-group">
-          <label for="accessFilter">Product Access:</label>
-          <select id="accessFilter">
+          <label for="accessFilter">
+            Product Access:
+            <span class="filter-active-indicator" id="accessActiveIndicator" style="display: none;"></span>
+          </label>
+          <select id="accessFilter" aria-label="Filter by product access">
             <option value="">All Products</option>
             <option value="with-links">With Access Links</option>
             <option value="with-training">With Training Materials</option>
@@ -1080,7 +1289,7 @@ h4 {
         
         <div class="filter-group">
           <label for="sortFilter">Sort By:</label>
-          <select id="sortFilter">
+          <select id="sortFilter" aria-label="Sort products">
             <option value="alpha-asc">A → Z (Alphabetical)</option>
             <option value="alpha-desc">Z → A (Reverse)</option>
           </select>
@@ -1094,24 +1303,30 @@ h4 {
   <!-- Main Content Area -->
   <main class="dashboard-main">
     
-    <!-- Search Box -->
-    <div class="filter-group">
-      <label for="searchBox">Search Keywords:</label>
-      <input 
-        type="text" 
-        id="searchBox" 
-        placeholder="Search products, sensors, use cases..."
-        aria-label="Search satellite products"
-      >
+    <!-- Search Box - Moved here for better accessibility -->
+    <div class="filter-group" style="margin-bottom: 20px;">
+      <label for="searchBox">
+        Search Keywords:
+        <span class="filter-active-indicator" id="searchActiveIndicator" style="display: none;"></span>
+      </label>
+      <div class="search-wrapper">
+        <input 
+          type="text" 
+          id="searchBox" 
+          placeholder="Search products, sensors, use cases..."
+          aria-label="Search satellite products"
+        >
+        <button class="clear-search-btn" id="clearSearchBtn" aria-label="Clear search">×</button>
+      </div>
     </div>
     
     <!-- Quick Actions Bar -->
     <div class="quick-actions">
       <div class="bulk-actions">
-        <button class="action-btn" onclick="expandAll()">
+        <button class="action-btn" id="expandAllBtn">
           ⬇️ Expand All
         </button>
-        <button class="action-btn secondary" onclick="collapseAll()">
+        <button class="action-btn secondary" id="collapseAllBtn">
           ⬆️ Collapse All
         </button>
       </div>
@@ -1131,6 +1346,7 @@ h4 {
   </main>
   
 </div>
+
 <script>
 // ===================================
 // Global Variables
@@ -1138,7 +1354,18 @@ h4 {
 let allProducts = [];
 let filteredProducts = [];
 let loadedSources = new Set();
-let currentHazardFilter = '';
+let searchDebounceTimer = null;
+
+// Filter state
+const filterState = {
+  hazard: '',
+  provider: '',
+  status: '',
+  access: '',
+  search: '',
+  sort: 'alpha-asc',
+  dataSource: 'combined'
+};
 
 // Data sources configuration
 const DATA_SOURCES = {
@@ -1267,6 +1494,24 @@ function mapColumnHeaders(headers) {
 }
 
 // ===================================
+// Loading Overlay Functions
+// ===================================
+
+function showLoadingOverlay() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.classList.add('active');
+  }
+}
+
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+  }
+}
+
+// ===================================
 // Mobile Sidebar Functions
 // ===================================
 
@@ -1275,12 +1520,123 @@ function toggleMobileSidebar() {
   sidebar.classList.toggle('mobile-open');
 }
 
+function closeMobileSidebar() {
+  if (window.innerWidth <= 768) {
+    const sidebar = document.getElementById('dashboardSidebar');
+    sidebar.classList.remove('mobile-open');
+  }
+}
+
 function toggleHowToUse() {
   const content = document.getElementById('howToUseContent');
   const icon = document.getElementById('howToUseIcon');
   
   content.classList.toggle('collapsed');
   icon.classList.toggle('collapsed');
+}
+
+// ===================================
+// Filter State Management
+// ===================================
+
+function getActiveFilterCount() {
+  let count = 0;
+  if (filterState.hazard) count++;
+  if (filterState.provider) count++;
+  if (filterState.status) count++;
+  if (filterState.access) count++;
+  if (filterState.search) count++;
+  if (filterState.dataSource !== 'combined') count++;
+  return count;
+}
+
+function updateActiveFiltersBadge() {
+  const badge = document.getElementById('activeFiltersBadge');
+  const count = document.getElementById('activeFiltersCount');
+  const clearAllBtn = document.getElementById('clearAllFiltersBtn');
+  const clearHazardBtn = document.getElementById('clearHazardBtn');
+  
+  const activeCount = getActiveFilterCount();
+  
+  if (activeCount > 0) {
+    badge.classList.remove('hidden');
+    count.textContent = activeCount;
+    clearAllBtn.disabled = false;
+  } else {
+    badge.classList.add('hidden');
+    clearAllBtn.disabled = true;
+  }
+  
+  // Update clear hazard button
+  clearHazardBtn.disabled = !filterState.hazard;
+}
+
+function updateFilterIndicators() {
+  // Data source indicator
+  const dataSourceFilter = document.getElementById('dataSourceFilter');
+  dataSourceFilter.classList.toggle('active', filterState.dataSource !== 'combined');
+  
+  // Provider indicator
+  const providerIndicator = document.getElementById('providerActiveIndicator');
+  providerIndicator.style.display = filterState.provider ? 'inline-block' : 'none';
+  document.getElementById('providerFilter').classList.toggle('active', !!filterState.provider);
+  
+  // Status indicator
+  const statusIndicator = document.getElementById('statusActiveIndicator');
+  statusIndicator.style.display = filterState.status ? 'inline-block' : 'none';
+  document.getElementById('statusFilter').classList.toggle('active', !!filterState.status);
+  
+  // Access indicator
+  const accessIndicator = document.getElementById('accessActiveIndicator');
+  accessIndicator.style.display = filterState.access ? 'inline-block' : 'none';
+  document.getElementById('accessFilter').classList.toggle('active', !!filterState.access);
+  
+  // Search indicator
+  const searchIndicator = document.getElementById('searchActiveIndicator');
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
+  searchIndicator.style.display = filterState.search ? 'inline-block' : 'none';
+  document.getElementById('searchBox').classList.toggle('active', !!filterState.search);
+  clearSearchBtn.classList.toggle('visible', !!filterState.search);
+  
+  // Hazard indicator
+  const hazardIndicator = document.getElementById('hazardActiveIndicator');
+  hazardIndicator.style.display = filterState.hazard ? 'inline-block' : 'none';
+}
+
+function clearAllFilters() {
+  // Reset filter state (except data source which requires reload)
+  filterState.hazard = '';
+  filterState.provider = '';
+  filterState.status = '';
+  filterState.access = '';
+  filterState.search = '';
+  // Keep sort and dataSource as is
+  
+  // Reset UI elements
+  document.getElementById('searchBox').value = '';
+  document.getElementById('providerFilter').value = '';
+  document.getElementById('statusFilter').value = '';
+  document.getElementById('accessFilter').value = '';
+  
+  // Reset data source to combined and reload
+  if (filterState.dataSource !== 'combined') {
+    filterState.dataSource = 'combined';
+    document.getElementById('dataSourceFilter').value = 'combined';
+    loadSatelliteProducts();
+  } else {
+    // Clear hazard selection
+    document.querySelectorAll('.hazard-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    
+    // Update indicators and apply filters
+    updateActiveFiltersBadge();
+    updateFilterIndicators();
+    applyFilters();
+  }
+  
+  // Close mobile sidebar
+  closeMobileSidebar();
 }
 
 // ===================================
@@ -1369,8 +1725,9 @@ async function loadSatelliteProducts() {
   const refreshBtn = document.getElementById('refreshBtn');
 
   showLoading();
+  showLoadingOverlay();
   refreshBtn.disabled = true;
-  refreshBtn.textContent = 'Loading...';
+  refreshBtn.textContent = '⏳ Loading...';
 
   try {
     allProducts = [];
@@ -1401,19 +1758,28 @@ async function loadSatelliteProducts() {
       loadedSources.add(selectedSource);
     }
 
+    // Update filter state
+    filterState.dataSource = selectedSource;
+
     updateSourceIndicator(selectedSource);
     clearFilterOptions();
     initializeFilters();
     filteredProducts = [...allProducts];
-    displayProducts();
+    
+    // Apply current filters and sorting after loading
+    applyFilters();
+    
     updateStats();
+    updateActiveFiltersBadge();
+    updateFilterIndicators();
 
   } catch (error) {
     console.error('Error loading satellite products:', error);
     showError(error.message);
   } finally {
+    hideLoadingOverlay();
     refreshBtn.disabled = false;
-    refreshBtn.textContent = 'Refresh Data';
+    refreshBtn.textContent = '🔄 Refresh Data';
   }
 }
 
@@ -1459,19 +1825,22 @@ function initializeFilters() {
 // ===================================
 
 function selectHazard(button, hazard) {
-  document.querySelectorAll('.hazard-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  
-  button.classList.add('active');
-  currentHazardFilter = hazard;
-  
-  applyFilters();
-  
-  // Close mobile sidebar after selection
-  if (window.innerWidth <= 768) {
-    document.getElementById('dashboardSidebar').classList.remove('mobile-open');
+  // Toggle hazard selection
+  if (button.classList.contains('active')) {
+    button.classList.remove('active');
+    filterState.hazard = '';
+  } else {
+    document.querySelectorAll('.hazard-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    button.classList.add('active');
+    filterState.hazard = hazard;
   }
+  
+  updateActiveFiltersBadge();
+  updateFilterIndicators();
+  applyFilters();
+  closeMobileSidebar();
 }
 
 function clearHazardFilter() {
@@ -1479,64 +1848,68 @@ function clearHazardFilter() {
     btn.classList.remove('active');
   });
   
-  currentHazardFilter = '';
+  filterState.hazard = '';
+  updateActiveFiltersBadge();
+  updateFilterIndicators();
+  applyFilters();
+}
+
+function clearSearch() {
+  document.getElementById('searchBox').value = '';
+  filterState.search = '';
+  updateActiveFiltersBadge();
+  updateFilterIndicators();
   applyFilters();
 }
 
 function applyFilters() {
-  const providerFilter = document.getElementById('providerFilter').value;
-  const statusFilter = document.getElementById('statusFilter').value;
-  const accessFilter = document.getElementById('accessFilter').value;
-  const sortFilter = document.getElementById('sortFilter').value;
-  const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-
-  console.log('Applying filters:', { providerFilter, statusFilter, accessFilter, sortFilter, searchTerm, currentHazardFilter });
+  console.log('Applying filters:', filterState);
 
   filteredProducts = allProducts.filter(product => {
     const columnMap = product._columnMap;
     
     // Hazard filter
-    if (currentHazardFilter) {
+    if (filterState.hazard) {
       const hazards = product[columnMap.priorityHazards] || '';
-      if (!hazards.toLowerCase().includes(currentHazardFilter.toLowerCase())) {
+      if (!hazards.toLowerCase().includes(filterState.hazard.toLowerCase())) {
         return false;
       }
     }
 
     // Provider filter
-    if (providerFilter) {
+    if (filterState.provider) {
       const productProvider = product[columnMap.provider];
-      if (!matchesProvider(productProvider, providerFilter)) {
+      if (!matchesProvider(productProvider, filterState.provider)) {
         return false;
       }
     }
 
     // Status filter
-    if (statusFilter) {
+    if (filterState.status) {
       const status = product[columnMap.operationalStatus]?.toLowerCase() || '';
-      if (statusFilter === 'operational' && !status.includes('operational')) {
+      if (filterState.status === 'operational' && !status.includes('operational')) {
         return false;
       }
-      if (statusFilter === 'development' && !status.includes('development')) {
+      if (filterState.status === 'development' && !status.includes('development')) {
         return false;
       }
     }
 
-    // Access filter (products with links or training materials)
-    if (accessFilter) {
+    // Access filter
+    if (filterState.access) {
       const urls = product[columnMap.urls] || '';
       const training = product[columnMap.trainingMaterials] || '';
       
-      if (accessFilter === 'with-links' && !urls.trim()) {
+      if (filterState.access === 'with-links' && !urls.trim()) {
         return false;
       }
-      if (accessFilter === 'with-training' && !training.trim()) {
+      if (filterState.access === 'with-training' && !training.trim()) {
         return false;
       }
     }
 
     // Search filter
-    if (searchTerm) {
+    if (filterState.search) {
       const searchableText = [
         product[columnMap.productName],
         product[columnMap.inputData],
@@ -1546,7 +1919,7 @@ function applyFilters() {
         product._sourceName
       ].join(' ').toLowerCase();
 
-      if (!searchableText.includes(searchTerm)) {
+      if (!searchableText.includes(filterState.search)) {
         return false;
       }
     }
@@ -1554,20 +1927,18 @@ function applyFilters() {
     return true;
   });
 
-  // Apply sorting
-  if (sortFilter === 'alpha-asc') {
-    filteredProducts.sort((a, b) => {
-      const nameA = (a[a._columnMap.productName] || '').toLowerCase();
-      const nameB = (b[b._columnMap.productName] || '').toLowerCase();
-      return nameA.localeCompare(nameB);
-    });
-  } else if (sortFilter === 'alpha-desc') {
-    filteredProducts.sort((a, b) => {
-      const nameA = (a[a._columnMap.productName] || '').toLowerCase();
-      const nameB = (b[b._columnMap.productName] || '').toLowerCase();
+  // Always apply sorting (not just conditionally)
+  filteredProducts.sort((a, b) => {
+    const nameA = (a[a._columnMap.productName] || '').toLowerCase();
+    const nameB = (b[b._columnMap.productName] || '').toLowerCase();
+    
+    if (filterState.sort === 'alpha-desc') {
       return nameB.localeCompare(nameA);
-    });
-  }
+    } else {
+      // Default to alpha-asc
+      return nameA.localeCompare(nameB);
+    }
+  });
 
   console.log(`Filtered ${filteredProducts.length} products from ${allProducts.length} total`);
   displayProducts();
@@ -1586,6 +1957,9 @@ function displayProducts() {
       <div class="no-results">
         <h3>No products found</h3>
         <p>Try adjusting your filters or search terms.</p>
+        <button class="action-btn" onclick="clearAllFilters()" style="margin-top: 16px;">
+          Clear All Filters
+        </button>
       </div>
     `;
     return;
@@ -1704,7 +2078,7 @@ function createProductLinks(urls) {
     }
 
     const linkText = urlList.length === 1 ? '🔗 Access Product' : `🔗 Access Link ${index + 1}`;
-    return `<a href="${cleanUrl}" target="_blank" class="product-link">${linkText}</a>`;
+    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="product-link">${linkText}</a>`;
   }).join('');
 
   return `<div class="product-links">${linksHtml}</div>`;
@@ -1737,7 +2111,7 @@ function createTrainingMaterials(trainingMaterials) {
       linkText = trainingList.length === 1 ? 'Documentation' : `Documentation ${index + 1}`;
     }
 
-    return `<a href="${cleanUrl}" target="_blank" class="training-link">${linkText}</a>`;
+    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="training-link">${linkText}</a>`;
   }).join('');
 
   return `
@@ -1790,27 +2164,106 @@ function collapseAll() {
 // ===================================
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize event listeners
+  // Data source change
   document.getElementById('dataSourceFilter').addEventListener('change', loadSatelliteProducts);
+  
+  // Refresh button
   document.getElementById('refreshBtn').addEventListener('click', loadSatelliteProducts);
-  document.getElementById('providerFilter').addEventListener('change', applyFilters);
-  document.getElementById('statusFilter').addEventListener('change', applyFilters);
-  document.getElementById('accessFilter').addEventListener('change', applyFilters);
-  document.getElementById('sortFilter').addEventListener('change', applyFilters);
-  document.getElementById('searchBox').addEventListener('input', applyFilters);
-
+  
+  // Filter changes
+  document.getElementById('providerFilter').addEventListener('change', function(e) {
+    filterState.provider = e.target.value;
+    updateActiveFiltersBadge();
+    updateFilterIndicators();
+    applyFilters();
+  });
+  
+  document.getElementById('statusFilter').addEventListener('change', function(e) {
+    filterState.status = e.target.value;
+    updateActiveFiltersBadge();
+    updateFilterIndicators();
+    applyFilters();
+  });
+  
+  document.getElementById('accessFilter').addEventListener('change', function(e) {
+    filterState.access = e.target.value;
+    updateActiveFiltersBadge();
+    updateFilterIndicators();
+    applyFilters();
+  });
+  
+  document.getElementById('sortFilter').addEventListener('change', function(e) {
+    filterState.sort = e.target.value;
+    applyFilters();
+  });
+  
+  // Search with debouncing
+  document.getElementById('searchBox').addEventListener('input', function(e) {
+    const value = e.target.value.toLowerCase();
+    
+    // Clear existing timer
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
+    
+    // Set new timer
+    searchDebounceTimer = setTimeout(() => {
+      filterState.search = value;
+      updateActiveFiltersBadge();
+      updateFilterIndicators();
+      applyFilters();
+    }, 300); // 300ms debounce delay
+  });
+  
+  // Clear search button
+  document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+  
+  // Clear all filters button
+  document.getElementById('clearAllFiltersBtn').addEventListener('click', clearAllFilters);
+  
+  // Clear hazard filter button
+  document.getElementById('clearHazardBtn').addEventListener('click', clearHazardFilter);
+  
+  // Bulk actions
+  document.getElementById('expandAllBtn').addEventListener('click', expandAll);
+  document.getElementById('collapseAllBtn').addEventListener('click', collapseAll);
+  
+  // How to use toggle
+  document.getElementById('howToUseHeader').addEventListener('click', toggleHowToUse);
+  
+  // Mobile menu toggle
+  document.getElementById('mobileMenuToggle').addEventListener('click', toggleMobileSidebar);
+  
+  // Hazard buttons with keyboard support
+  document.querySelectorAll('.hazard-btn').forEach(btn => {
+    const hazard = btn.getAttribute('data-hazard');
+    
+    btn.addEventListener('click', function() {
+      selectHazard(btn, hazard);
+    });
+    
+    btn.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectHazard(btn, hazard);
+      }
+    });
+  });
+  
   // Close sidebar when clicking outside on mobile
   document.addEventListener('click', function(event) {
     if (window.innerWidth <= 768) {
       const sidebar = document.getElementById('dashboardSidebar');
-      const toggle = document.querySelector('.mobile-menu-toggle');
+      const toggle = document.getElementById('mobileMenuToggle');
       
-      if (sidebar && toggle && !sidebar.contains(event.target) && !toggle.contains(event.target)) {
+      if (sidebar && toggle && 
+          !sidebar.contains(event.target) && 
+          !toggle.contains(event.target)) {
         sidebar.classList.remove('mobile-open');
       }
     }
   });
-
+  
   // Load initial data
   loadSatelliteProducts();
 });
